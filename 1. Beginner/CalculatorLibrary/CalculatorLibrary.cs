@@ -1,67 +1,84 @@
 ﻿namespace CalculatorLibrary;
 using System.Diagnostics;
+using System.Transactions;
 using Newtonsoft.Json;
 
 public class CalcLib
 {
-    JsonWriter writer;
+    private readonly JsonWriter _writer;
+    private List<Calculation> _calculations;
     public CalcLib()
     {
         StreamWriter logFile = File.CreateText("calculator.log");
         logFile.AutoFlush = true;
-        writer = new JsonTextWriter(logFile);
-        writer.Formatting = Formatting.Indented;
-        writer.WriteStartObject();
-        writer.WritePropertyName("Operation");
-        writer.WriteStartArray();
+        _writer = new JsonTextWriter(logFile);
+        _writer.Formatting = Formatting.Indented;
+        _writer.WriteStartObject();
+        _writer.WritePropertyName("Operation");
+        _writer.WriteStartArray();
+        _calculations = [];
     }
+
     public double DoOperation(double num1, double num2, string op)
     {
         double result = double.NaN;
-        writer.WriteStartObject();
-        writer.WritePropertyName("Operand1");
-        writer.WriteValue(num1);
-        writer.WritePropertyName("Operand2");
-        writer.WriteValue(num2);
-        writer.WritePropertyName("Operation");
+        _writer.WriteStartObject();
+        _writer.WritePropertyName("Operand1");
+        _writer.WriteValue(num1);
+        _writer.WritePropertyName("Operand2");
+        _writer.WriteValue(num2);
+        _writer.WritePropertyName("Operation");
 
         switch (op.Trim().ToLower())
         {
             case "a":
                 result = num1 + num2;
-                writer.WriteValue("Add");
+                _writer.WriteValue("Add");
+                _calculations.Add(new Calculation(num1, "+", num2, result));
                 break;
 
             case "s":
                 result = num1 - num2;
-                writer.WriteValue("Subtract");
+                _writer.WriteValue("Subtract");
+                _calculations.Add(new Calculation(num1, "-", num2, result));
                 break;
 
             case "m":
                 result = num1 * num2;
-                writer.WriteValue("Multiply");
+                _writer.WriteValue("Multiply");
+                _calculations.Add(new Calculation(num1, "*", num2, result));
                 break;
 
             case "d":
-                if (num2 !=0)
+                if (num2 != 0)
                 {
                     result = num1 / num2;
-                    writer.WriteValue("Divide");
+                    _writer.WriteValue("Divide"); _calculations.Add(new Calculation(num1, "/", num2, result));
                 }
                 break;
 
             default:
                 break;
         }
-        writer.WritePropertyName("Result");
-        writer.WriteValue(result);
-        writer.WriteEndObject();
+        _writer.WritePropertyName("Result");
+        _writer.WriteValue(result);
+        _writer.WriteEndObject();
         return result;
     }
+
     public void Finish()
     {
-        writer.WriteEndArray();
-        writer.WriteEndObject();
-        writer.Close();
+        _writer.WriteEndArray();
+        _writer.WriteEndObject();
+        _writer.Close();
     }
+
+    public IEnumerable<Calculation> PreviousCalculations
+    {
+        get { return _calculations; }
+    }
+
+    public record Calculation(double Operand1, string Operation, double Operand2, double Result);
 }
+
+

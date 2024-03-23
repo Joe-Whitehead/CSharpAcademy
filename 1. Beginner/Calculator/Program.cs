@@ -1,55 +1,62 @@
 ﻿using CalculatorLibrary;
-bool endApp = false;
 
+//Program Variables
+bool endApp = false;
+int counter = 0;
 CalcLib calculator = new();
 
 while (!endApp)
 {
-	string? numInput1;
-	string? numInput2;
-	string? op;
-	double result = 0;
-
-    Console.WriteLine("""
+    double operand1;
+    double operand2;
+    string? op;
+    double result = 0;
+	
+    Console.WriteLine($"""
 	Console Calculator in C#
 	------------------------
+	Calculations this session: {counter}
+
 	""");
+
+	if (calculator.PreviousCalculations.Any())
+	{
+		Console.WriteLine("""
+		Previous Calculations:
+		----------------------
+		""");
+		int count = 0;
+		var prevList = calculator.PreviousCalculations.GetEnumerator();
+		while (prevList.MoveNext())
+		{
+			count++;
+			Console.WriteLine($"{count}: {prevList.Current.Operand1} {prevList.Current.Operation} {prevList.Current.Operand2} = {prevList.Current.Result}");
+		}
+		Console.WriteLine("----------------------");
+	}
+
     //First number input
     Console.Write("Enter the first number: ");
-	numInput1 = Console.ReadLine();
+	operand1 = ValidateNumber();
 
-	double cleanNum1 = 0;
-	while (!double.TryParse(numInput1, out cleanNum1))
-	{
-		Console.Write("Value must be a number: ");
-		numInput1 = Console.ReadLine();
-	}
+    //Second number input
+    Console.Write("Enter the second number: ");
+    operand2 = ValidateNumber();
 
-	//Second number input
-	Console.Write("Enter the second number: ");
-	numInput2 = Console.ReadLine();
-
-	double cleanNum2 = 0;
-	while (!Double.TryParse(numInput2, out cleanNum2))
-	{
-		Console.Write("Value must be a number: ");
-		numInput2 = Console.ReadLine();
-	}
-
-	//Operator selection
-	Console.WriteLine("""
+    //Operator selection
+    Console.WriteLine("""
 		Choose Operation to perform:
 		A - Add
 		S - Subtract
 		M - Multiply
 		D - Divide
 		""");
-	Console.Write("Menu Selection: ");
-	op = Console.ReadLine();
+    Console.Write("Menu Selection: ");
+	op = ValidateMenu();
 
-	try
+    try
 	{
-		result = calculator.DoOperation(cleanNum1, cleanNum2, op);
+		result = calculator.DoOperation(operand1, operand2, op);
 		if (double.IsNaN(result))
 			Console.WriteLine("This operation will result in a mathematical error.");
 		else
@@ -64,6 +71,7 @@ while (!endApp)
 	{
 		Console.WriteLine($"Exception occured whilst calculating: {ex.Message}");
 	}
+	counter++;
 
 	Console.WriteLine("""
 		------------------------
@@ -74,3 +82,33 @@ while (!endApp)
 }
 calculator.Finish();
 return;
+
+double ValidateNumber()
+{
+	string? input = Console.ReadLine();
+	double validNumber;
+    while (!double.TryParse(input, out validNumber))
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Write("Value must be a number: ");
+        Console.ResetColor();
+        input = Console.ReadLine();
+    }
+    return validNumber;
+}
+
+string ValidateMenu()
+{
+    string[] menuOptions = { "a", "s", "m", "d" };
+    string? input = Console.ReadLine();
+
+	while (string.IsNullOrEmpty(input) || !menuOptions.Contains(input.Trim().ToLower()))
+	{
+		Console.ForegroundColor = ConsoleColor.Red;
+		Console.Write("Please select a valid menu option: ");
+		Console.ResetColor();
+		input = Console.ReadLine();
+	}
+
+	return input;
+}
