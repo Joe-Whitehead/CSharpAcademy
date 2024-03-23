@@ -16,7 +16,7 @@ while (!endApp)
 	Console Calculator in C#
 	------------------------
 	Calculations this session: {counter}
-
+	Calculations Total: {calculator.PreviousCalculations.Count()}
 	""");
 
 	if (calculator.PreviousCalculations.Any())
@@ -30,7 +30,7 @@ while (!endApp)
 		while (prevList.MoveNext())
 		{
 			count++;
-			Console.WriteLine($"{count}: {prevList.Current.Operand1} {prevList.Current.Operation} {prevList.Current.Operand2} = {prevList.Current.Result}");
+			Console.WriteLine($"{count}: {prevList.Current.Operand1} {prevList.Current.Operation} {prevList.Current.Operand2} = {prevList.Current.Result:0.##}");
 		}
 		Console.WriteLine("----------------------");
 	}

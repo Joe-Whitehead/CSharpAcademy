@@ -6,71 +6,66 @@ using Newtonsoft.Json;
 public class CalcLib
 {
     private readonly JsonWriter _writer;
+    private readonly JsonReader _reader;
     private List<Calculation> _calculations;
     public CalcLib()
     {
-        StreamWriter logFile = File.CreateText("calculator.log");
-        logFile.AutoFlush = true;
-        _writer = new JsonTextWriter(logFile);
-        _writer.Formatting = Formatting.Indented;
-        _writer.WriteStartObject();
-        _writer.WritePropertyName("Operation");
-        _writer.WriteStartArray();
-        _calculations = [];
+        if(File.Exists("Calculations.json"))
+        {
+            _calculations = JsonConvert.DeserializeObject<List<Calculation>>(File.ReadAllText("Calculations.json"));
+        }
+        else _calculations = [];
     }
 
     public double DoOperation(double num1, double num2, string op)
     {
         double result = double.NaN;
-        _writer.WriteStartObject();
-        _writer.WritePropertyName("Operand1");
-        _writer.WriteValue(num1);
-        _writer.WritePropertyName("Operand2");
-        _writer.WriteValue(num2);
-        _writer.WritePropertyName("Operation");
-
+        
         switch (op.Trim().ToLower())
         {
             case "a":
                 result = num1 + num2;
-                _writer.WriteValue("Add");
-                _calculations.Add(new Calculation(num1, "+", num2, result));
+                AddToList(num1, num2, result, "+");
                 break;
 
             case "s":
                 result = num1 - num2;
-                _writer.WriteValue("Subtract");
-                _calculations.Add(new Calculation(num1, "-", num2, result));
+                AddToList(num1, num2, result, "-");
                 break;
 
             case "m":
                 result = num1 * num2;
-                _writer.WriteValue("Multiply");
-                _calculations.Add(new Calculation(num1, "*", num2, result));
+                AddToList(num1, num2, result, "*");
                 break;
 
             case "d":
                 if (num2 != 0)
                 {
                     result = num1 / num2;
-                    _writer.WriteValue("Divide"); _calculations.Add(new Calculation(num1, "/", num2, result));
+                    AddToList(num1, num2, result, "/");
                 }
                 break;
 
             default:
                 break;
-        }
-        _writer.WritePropertyName("Result");
-        _writer.WriteValue(result);
-        _writer.WriteEndObject();
+        }        
         return result;
+    }
+
+    private void AddToList(double num1, double num2, double result, string operation)
+    {
+        _calculations.Add(new Calculation(num1, operation, num2, result));
     }
 
     public void Finish()
     {
-        _writer.WriteEndArray();
-        _writer.WriteEndObject();
-        _writer.Close();
+        File.WriteAllText("Calculations.json", JsonConvert.SerializeObject(_calculations));
+
+        using (StreamWriter file = File.CreateText("Calculations.json"))
+        {
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.Serialize(file, _calculations);
+        }
     }
 
     public IEnumerable<Calculation> PreviousCalculations
