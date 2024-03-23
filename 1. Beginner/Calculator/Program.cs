@@ -1,10 +1,7 @@
-﻿using Calculator;
+﻿using CalculatorLibrary;
 bool endApp = false;
 
-Console.WriteLine("""
-	Console Calculator in C#
-	------------------------
-	""");
+CalcLib calculator = new();
 
 while (!endApp)
 {
@@ -13,8 +10,12 @@ while (!endApp)
 	string? op;
 	double result = 0;
 
-	//First number input
-	Console.Write("Enter the first number: ");
+    Console.WriteLine("""
+	Console Calculator in C#
+	------------------------
+	""");
+    //First number input
+    Console.Write("Enter the first number: ");
 	numInput1 = Console.ReadLine();
 
 	double cleanNum1 = 0;
@@ -48,11 +49,16 @@ while (!endApp)
 
 	try
 	{
-		result = Operations.DoOperation(cleanNum1, cleanNum2, op);
+		result = calculator.DoOperation(cleanNum1, cleanNum2, op);
 		if (double.IsNaN(result))
 			Console.WriteLine("This operation will result in a mathematical error.");
 		else
+		{
+			Console.WriteLine();
+			Console.ForegroundColor = ConsoleColor.Green; ;
 			Console.WriteLine($"Result: {result:0.##}");
+			Console.ResetColor();
+		}
 	}
 	catch (Exception ex)
 	{
@@ -64,5 +70,7 @@ while (!endApp)
 		Press any key to continue or 'Q' to quit
 		""");
 	if (Console.ReadKey(true).Key == ConsoleKey.Q) endApp = true;
+	Console.Clear();
 }
+calculator.Finish();
 return;
