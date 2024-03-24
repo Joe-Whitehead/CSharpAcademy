@@ -1,21 +1,10 @@
 ﻿namespace CalculatorLibrary;
-using System.Diagnostics;
-using System.Transactions;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 public class CalcLib
 {
-    private readonly JsonWriter _writer;
-    private readonly JsonReader _reader;
-    private List<Calculation> _calculations;
-    public CalcLib()
-    {
-        if(File.Exists("Calculations.json"))
-        {
-            _calculations = JsonConvert.DeserializeObject<List<Calculation>>(File.ReadAllText("Calculations.json"));
-        }
-        else _calculations = [];
-    }
+    private const string _jsonFileName = "Calculations.json";
+    private List<Calculation> _calculations = new();
 
     public double DoOperation(double num1, double num2, string op)
     {
@@ -57,23 +46,22 @@ public class CalcLib
         _calculations.Add(new Calculation(num1, operation, num2, result));
     }
 
-    public void Finish()
+    public async Task OpenFile()
     {
-        File.WriteAllText("Calculations.json", JsonConvert.SerializeObject(_calculations));
-
-        using (StreamWriter file = File.CreateText("Calculations.json"))
+        if (File.Exists(_jsonFileName))
         {
-            JsonSerializer serializer = new JsonSerializer();
-            serializer.Serialize(file, _calculations);
-        }
+            await using FileStream openStream = File.OpenRead(_jsonFileName);
+            _calculations = await JsonSerializer.DeserializeAsync<List<Calculation>>(openStream);
+        }        
     }
 
-    public IEnumerable<Calculation> PreviousCalculations
+    public async Task SaveFile()
     {
-        get { return _calculations; }
+        await using FileStream createStream  =File.Create(_jsonFileName);
+        await JsonSerializer.SerializeAsync(createStream, _calculations);
     }
+
+    public IEnumerable<Calculation> PreviousCalculations => _calculations;
 
     public record Calculation(double Operand1, string Operation, double Operand2, double Result);
 }
-
-

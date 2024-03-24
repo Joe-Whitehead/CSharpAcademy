@@ -4,6 +4,7 @@
 bool endApp = false;
 int counter = 0;
 CalcLib calculator = new();
+await calculator.OpenFile();
 
 while (!endApp)
 {
@@ -22,18 +23,25 @@ while (!endApp)
 	if (calculator.PreviousCalculations.Any())
 	{
 		Console.WriteLine("""
+		----------------------
 		Previous Calculations:
 		----------------------
 		""");
-		int count = 0;
+        int count = 0;
 		var prevList = calculator.PreviousCalculations.GetEnumerator();
 		while (prevList.MoveNext())
 		{
 			count++;
-			Console.WriteLine($"{count}: {prevList.Current.Operand1} {prevList.Current.Operation} {prevList.Current.Operand2} = {prevList.Current.Result:0.##}");
-		}
-		Console.WriteLine("----------------------");
+			Console.ForegroundColor = ConsoleColor.Blue;
+			Console.Write($"{count}: ");
+			Console.ResetColor();
+			Console.Write($"{prevList.Current.Operand1} {prevList.Current.Operation} {prevList.Current.Operand2} = ");
+			Console.ForegroundColor= ConsoleColor.Green;
+			Console.WriteLine($"{ prevList.Current.Result:0.##}");
+            Console.ResetColor();
+        }				
 	}
+    Console.WriteLine("----------------------");
 
     //First number input
     Console.Write("Enter the first number: ");
@@ -72,17 +80,18 @@ while (!endApp)
 		Console.WriteLine($"Exception occured whilst calculating: {ex.Message}");
 	}
 	counter++;
+    await calculator.SaveFile();
 
-	Console.WriteLine("""
+    Console.WriteLine("""
 		------------------------
 		Press any key to continue or 'Q' to quit
 		""");
 	if (Console.ReadKey(true).Key == ConsoleKey.Q) endApp = true;
 	Console.Clear();
 }
-calculator.Finish();
 return;
 
+#region Validation
 double ValidateNumber()
 {
 	string? input = Console.ReadLine();
@@ -112,3 +121,4 @@ string ValidateMenu()
 
 	return input;
 }
+#endregion
