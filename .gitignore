@@ -421,6 +421,6 @@ $RECYCLE.BIN/
 *.lnk
 
 # SQLite Files
-.db
+*.db
 
 
