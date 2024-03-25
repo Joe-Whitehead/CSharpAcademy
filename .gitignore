@@ -420,4 +420,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# SQLite Files
+.db
+
 
