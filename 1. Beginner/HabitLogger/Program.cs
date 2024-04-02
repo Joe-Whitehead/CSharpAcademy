@@ -30,15 +30,41 @@ while (!endAPp)
             break;
 
         case 1:            
-            //TODO: View Records
             Console.WriteLine("View Records \n");
-            //Console.WriteLine();
             DisplayRecords();
             break;
+
         case 2:
-            //TODO: Inseert Record
             Console.WriteLine("Insert Record");
+            Console.WriteLine("-------------");
+
+            var habits = db.GetHabits();
+            int i = 1;
+            foreach( var habit in habits)
+            {
+                Console.WriteLine($"{i} - {habit.HabitName}");
+                i++;
+            }
+            Console.Write("\nSelect Habit to insert Record: ");
+            var userSelection = ValidateMenu();
+            var userHabit = habits[userSelection - 1];
+
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(userHabit.HabitName);
+            Console.ResetColor();
+            Console.WriteLine("------");            
+            Console.Write($"Write Quantity in {userHabit.Unit}: ");
+            var userQuantity = ValidateMenu();
+            if (userQuantity < 1)
+            {
+                Console.WriteLine("Invalid number - Returning to Main Menu");
+                break;
+            }
+            db.insert(userHabit, userQuantity);
+            Console.WriteLine($"Added {userQuantity} {userHabit.Unit} to {userHabit.HabitName}");
             break;
+
         case 3:
             //TODO: Delete Record
             Console.WriteLine("Delete Record");
@@ -66,7 +92,7 @@ void DisplayRecords()
 
         foreach (var row in record.Entries)
         {
-            table.AddRow($"{row.Quantity} {record.Unit}", row.Date);
+            table.AddRow($"{row.Quantity} {record.Unit}", row.Date.Date.ToString("ddd (dd/MM/yy)"));
         }        
         table.Write(Format.MarkDown);
         Console.WriteLine();
