@@ -1,11 +1,14 @@
 ﻿using ConsoleTables;
 using HabitLogger;
+using static HabitLogger.Database;
 bool endAPp = false;
 Database db = new Database();
 
 while (!endAPp)
 {    
     int menuSelection;
+    int userQuantity;
+    Habit userHabit;
 
     Console.WriteLine("""
         Habit Tracker
@@ -38,16 +41,7 @@ while (!endAPp)
             Console.WriteLine("Insert Record");
             Console.WriteLine("-------------");
 
-            var habits = db.GetHabits();
-            int i = 1;
-            foreach( var habit in habits)
-            {
-                Console.WriteLine($"{i} - {habit.HabitName}");
-                i++;
-            }
-            Console.Write("\nSelect Habit to insert Record: ");
-            var userSelection = ValidateMenu();
-            var userHabit = habits[userSelection - 1];
+            userHabit = HabitMenu();
 
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Green;
@@ -55,7 +49,7 @@ while (!endAPp)
             Console.ResetColor();
             Console.WriteLine("------");            
             Console.Write($"Write Quantity in {userHabit.Unit}: ");
-            var userQuantity = ValidateMenu();
+            userQuantity = ValidateMenu();
             if (userQuantity < 1)
             {
                 Console.WriteLine("Invalid number - Returning to Main Menu");
@@ -67,7 +61,26 @@ while (!endAPp)
 
         case 3:
             //TODO: Delete Record
-            Console.WriteLine("Delete Record");
+            Console.WriteLine("Delete Record");            
+
+            Console.WriteLine("""
+                1 - Delete Habit & Records
+                2 - Delete Record
+                """);
+            menuSelection = ValidateMenu();
+            
+            switch (menuSelection)
+            {
+                case 1:
+                    userHabit = HabitMenu();
+                    db.DeleteHabit(userHabit);
+                    break;
+
+                case 2:
+                    //db.DeleteRecord(userHabit, userRecord);
+                    break;
+            }
+
             break;
         case 4:
             //TODO: Update Record
@@ -77,6 +90,21 @@ while (!endAPp)
     Console.WriteLine("Press any key to continue");
     Console.ReadKey(true);
     Console.Clear();
+}
+
+Habit HabitMenu()
+{
+    var habits = db.GetHabits();
+    int i = 1;
+    foreach (var habit in habits)
+    {
+        Console.WriteLine($"{i} - {habit.HabitName}");
+        i++;
+    }
+    Console.Write("\nSelect Habit: ");
+    var menuSelection = ValidateMenu();
+
+    return habits[menuSelection - 1];
 }
 
 void DisplayRecords()

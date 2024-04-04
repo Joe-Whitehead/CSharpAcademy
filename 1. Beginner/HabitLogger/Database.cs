@@ -1,4 +1,4 @@
-﻿using System.Data.SQLite;
+﻿ using System.Data.SQLite;
 
 namespace HabitLogger;
 
@@ -98,6 +98,7 @@ internal class Database
         using var cmd = new SQLiteCommand(DbConnection);
         cmd.CommandText = $"INSERT INTO {habit.HabitName}(Quantity, Datetime) VALUES ({quantity}, '{DateTime.UtcNow}')";                      
         cmd.ExecuteNonQuery();
+        cmd.Dispose();
 
     }
 
@@ -106,7 +107,18 @@ internal class Database
 
     }
 
-    public void Delete()
+    public void DeleteHabit(Habit habit)
+    {
+        using var cmd = new SQLiteCommand(DbConnection);
+        cmd.CommandText = $"DELETE FROM Habits Where Name =  '{habit.HabitName}'";
+        cmd.ExecuteNonQuery();
+
+        cmd.CommandText = $"DROP TABLE IF EXISTS {habit.HabitName}";
+        cmd.ExecuteNonQuery();
+        cmd.Dispose();
+    }
+
+    public void DeleteRecord(Habit habit, Entry entry)
     {
 
     }
