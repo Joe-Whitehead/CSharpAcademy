@@ -102,9 +102,12 @@ internal class Database
 
     }
 
-    public void Update()
+    public void Update(Habit habit, Entry record, int Quantity)
     {
-
+        using var cmd = new SQLiteCommand(DbConnection);
+        cmd.CommandText = $"UPDATE {habit.HabitName} SET Quantity = {Quantity}, Datetime = '{DateTime.UtcNow}' WHERE id = {record.id}";
+        cmd.ExecuteNonQuery();
+        cmd.Dispose();
     }
 
     public void DeleteHabit(Habit habit)
@@ -122,6 +125,8 @@ internal class Database
     {
         using var cmd = new SQLiteCommand(DbConnection);
         cmd.CommandText = $"DELETE FROM {habit.HabitName} Where id = '{entry.id}'";
+        cmd.ExecuteNonQuery();
+        cmd.Dispose();
     }
 
     public record Habit (int id, string HabitName, string Unit, List<Entry> Entries);

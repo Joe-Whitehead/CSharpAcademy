@@ -7,9 +7,11 @@ Database db = new Database();
 while (!endAPp)
 {    
     int menuSelection;
+    int recordSelection;
     int userQuantity;
-    bool exitToMenu = false;
+    bool validHabit = false;
     Habit userHabit;
+    List<Entry> records;
 
     Console.WriteLine("""
         Habit Tracker
@@ -27,6 +29,7 @@ while (!endAPp)
     {
         Console.WriteLine("There are no Habits logged, Please select Insert to add one.");
     }
+    Console.Write("Select Option: ");
     menuSelection = ValidateMenu();
     Console.Clear();
 
@@ -57,8 +60,8 @@ while (!endAPp)
                 //Insert New Habit
             }
 
-            exitToMenu = HabitMenu(out userHabit);
-            if (exitToMenu)
+            validHabit = HabitMenu(out userHabit);
+            if (!validHabit)
                 break;
 
             Console.Clear();
@@ -91,41 +94,44 @@ while (!endAPp)
                 1 - Delete Habit & Records
                 2 - Delete Record
                 """);
+            Console.Write("Select Option: ");
             menuSelection = ValidateMenu();
             Console.Clear();
             switch (menuSelection)
             {
                 case 1:
-                    exitToMenu = HabitMenu(out userHabit);
-                    if (exitToMenu)
+                    validHabit = HabitMenu(out userHabit);
+                    if (!validHabit)
                         break;
 
                     db.DeleteHabit(userHabit);
                     break;
 
                 case 2:
-                    exitToMenu = HabitMenu(out userHabit);
-                    if (exitToMenu)
+                    validHabit = HabitMenu(out userHabit);
+                    if (!validHabit)
                         break;
 
                     Console.Clear();
                     Console.WriteLine("Select Record to Delete");
                     Console.WriteLine("-----------------------");
-                    var records = db.GetHabitRecords(userHabit);
-                    int i = 1;
-                    foreach (var record in records)
+                    records = db.GetHabitRecords(userHabit);
+                    foreach (var record in records.Select((value, i) => new { i, value }))
                     {
-                        Console.WriteLine($"{i}: {record.Quantity} {userHabit.Unit} - {record.Date:ddd (dd/MM) HH:mm}");
-                        i++;
+                        Console.WriteLine($"{record.i + 1}: {record.value.Quantity} {userHabit.Unit} - {record.value.Date:ddd (dd/MM) HH:mm}");
+
                     }
                     Console.WriteLine("0 - Exit to Main Menu");
                     Console.Write("Select Option: ");
-                    var recordSelection = ValidateMenu();
+                    recordSelection = ValidateMenu();
 
                     if (recordSelection == 0) break;
-
-                    var userRecord = records[recordSelection - 1];
-                    db.DeleteRecord(userHabit, userRecord);
+                    while (recordSelection > records.Count)
+                    {
+                        Console.Write("Invalid Option, Try again: ");
+                        recordSelection = ValidateMenu();
+                    }
+                    db.DeleteRecord(userHabit, records[recordSelection - 1]);
                     break;
             }
             break;
@@ -139,6 +145,34 @@ while (!endAPp)
                 Console.WriteLine("No Records to show, Return to Main Menu to add some.");
                 break;
             }
+            validHabit = HabitMenu(out userHabit);
+            if (!validHabit)
+                break;
+
+            Console.Clear();
+            records = db.GetHabitRecords(userHabit);
+            foreach (var record in records.Select((value, i) => new { i, value }))
+            {
+                Console.WriteLine($"{record.i + 1}: {record.value.Quantity} {userHabit.Unit} - {record.value.Date:ddd (dd/MM) HH:mm}");                
+            }
+            Console.WriteLine("0 - Exit to Main Menu");
+            Console.Write("Select Option: ");
+            recordSelection = ValidateMenu();
+
+            if (recordSelection == 0) break;
+            while (recordSelection > records.Count)
+            {
+                Console.Write("Invalid Option, Try again: ");
+                recordSelection = ValidateMenu();
+            }
+            recordSelection--;
+
+            Console.Clear();
+            Console.WriteLine($"Updating {records[recordSelection].Quantity} {userHabit.Unit} of {userHabit.HabitName}");
+            Console.WriteLine("---------------------");
+            Console.Write("Enter new Quantity: ");
+            userQuantity = ValidateMenu();
+            db.Update(userHabit, records[recordSelection], userQuantity);
             break;
     }
     Console.WriteLine("Press any key to continue");
@@ -152,23 +186,25 @@ bool IsHabits() => db.GetHabits().Any();
 bool HabitMenu(out Habit selectedHabit)
 {
     var habits = db.GetHabits();
-    int i = 1;    
-    foreach (var habit in habits)
+    foreach (var habit in habits.Select((value, i) => new { i, value }))
     {
 
-      Console.WriteLine($"{i} - {habit.HabitName}");
-        i++;
+      Console.WriteLine($"{habit.i + 1} - {habit.value.HabitName}");
     }
     Console.WriteLine("0 - Exit to Main Menu");
-    Console.Write("\nSelect Option: ");
+    Console.Write("Select Option: ");
     var menuSelection = ValidateMenu();
+    while (menuSelection > habits.Count)
+    {
+        Console.Write("Invalid Option, Try again: ");
+        menuSelection = ValidateMenu();
+    }
 
     if (menuSelection == 0)
     {
         selectedHabit = new Habit(0, "", "", []);
         return false;
     }
-
     selectedHabit = habits[menuSelection - 1];
     return true; 
 }
@@ -194,7 +230,7 @@ void DisplayRecords()
 }
 
 int ValidateMenu()
-{
+{    
     string? input = Console.ReadLine();
     int validNumber;
     while (!int.TryParse(input, out validNumber))
