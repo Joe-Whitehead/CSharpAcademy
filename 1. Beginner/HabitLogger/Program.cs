@@ -1,5 +1,6 @@
 ﻿using ConsoleTables;
 using HabitLogger;
+using System.Security.Permissions;
 using static HabitLogger.Database;
 bool endAPp = false;
 Database db = new Database();
@@ -23,6 +24,7 @@ while (!endAPp)
         2 - Insert Record
         3 - Delete Record
         4 - Update Record
+        5 - Add New Habit
         -------------
         """);
     if (!IsHabits())
@@ -44,7 +46,7 @@ while (!endAPp)
             Console.WriteLine("View Records \n");
             if (!IsHabits())
             {
-                Console.WriteLine("No Records to show, Return to Main Menu to add some.");
+                Console.WriteLine("No Habits to show, Return to Main Menu to add some.");
                 break;
             }
             DisplayRecords();
@@ -56,8 +58,8 @@ while (!endAPp)
 
             if (!IsHabits())
             {
+                Console.WriteLine("No Habits to show, Return to Main Menu to add some.");
                 break;
-                //Insert New Habit
             }
 
             validHabit = HabitMenu(out userHabit);
@@ -81,12 +83,11 @@ while (!endAPp)
             break;
 
         case 3:
-            //TODO: Delete Record
             Console.WriteLine("Delete Record");
             Console.WriteLine("-------------");
             if (!IsHabits())
             {
-                Console.WriteLine("No Records to show, Return to Main Menu to add some.");
+                Console.WriteLine("No Habits to show, Return to Main Menu to add some.");
                 break;
             }
 
@@ -137,12 +138,11 @@ while (!endAPp)
             break;
 
         case 4:
-            //TODO: Update Record
             Console.WriteLine("Update Record");
             Console.WriteLine("-------------");
             if (!IsHabits())
             {
-                Console.WriteLine("No Records to show, Return to Main Menu to add some.");
+                Console.WriteLine("No Habits to show, Return to Main Menu to add some.");
                 break;
             }
             validHabit = HabitMenu(out userHabit);
@@ -174,6 +174,32 @@ while (!endAPp)
             userQuantity = ValidateMenu();
             db.Update(userHabit, records[recordSelection], userQuantity);
             break;
+
+        case 5:
+            Console.WriteLine("Add Habit");
+            Console.WriteLine("---------");
+            Console.Write("Habit Name: ");
+            string habitName = ValidateInput();
+
+            if (IsHabits())
+            {
+                var existingHabits = new List<string>();
+                foreach (var habit in db.GetHabits())
+                {
+                    existingHabits.Add(habit.HabitName);
+                }
+
+                if (existingHabits.Contains(habitName))
+                {
+                    Console.Write("Habit already exists, Please delete it first.");
+                    break;
+                }
+            }
+            Console.Write("Unit of measurement (e.g. 'Glasses' for Water): ");
+            string unit = ValidateInput();
+
+            db.AddNewHabit(habitName, unit);
+            break;
     }
     Console.WriteLine("Press any key to continue");
     Console.ReadKey(true);
@@ -181,7 +207,6 @@ while (!endAPp)
 }
 
 bool IsHabits() => db.GetHabits().Any();
-
 
 bool HabitMenu(out Habit selectedHabit)
 {
@@ -227,6 +252,18 @@ void DisplayRecords()
         table.Write(Format.MarkDown);
         Console.WriteLine();
     }
+}
+
+string ValidateInput()
+{
+    string? input = Console.ReadLine();
+    while (String.IsNullOrEmpty(input)) 
+    {
+        Console.Write("Invalid entry, please try again: ");
+        input = Console.ReadLine();
+    }
+
+    return input;
 }
 
 int ValidateMenu()

@@ -1,4 +1,5 @@
 ﻿ using System.Data.SQLite;
+using static HabitLogger.Database;
 
 namespace HabitLogger;
 
@@ -48,6 +49,24 @@ internal class Database
         cmd.ExecuteNonQuery();
         cmd.Dispose();
         Console.WriteLine("Fruit Table Created");
+    }
+
+    public void AddNewHabit(string HabitName, string Unit)
+    {
+        using var cmd = new SQLiteCommand(DbConnection);
+
+        //Create table for habit
+        cmd.CommandText = $"DROP TABLE IF EXISTS {HabitName}";
+        cmd.ExecuteNonQuery();
+        cmd.CommandText = $"CREATE TABLE {HabitName}(id INTEGER PRIMARY KEY, Quantity INTEGER, Datetime TEXT)";
+        cmd.ExecuteNonQuery();
+
+        //Add Habit into habits table
+        cmd.CommandText = $"DELETE FROM Habits Where Name =  '{HabitName}'";
+        cmd.ExecuteNonQuery();
+        cmd.CommandText = $"INSERT INTO Habits(Name, Unit) VALUES ('{HabitName}', '{Unit}')";
+        cmd.ExecuteNonQuery();
+        cmd.Dispose ();
     }
 
     public List<Habit> GetHabits()
