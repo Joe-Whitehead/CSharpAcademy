@@ -22,6 +22,10 @@ while (!endAPp)
         4 - Update Record
         -------------
         """);
+    if (!IsHabits())
+    {
+        Console.WriteLine("There are no Habits logged, Please select Insert to add one.");
+    }
     menuSelection = ValidateMenu();
     Console.Clear();
 
@@ -34,14 +38,33 @@ while (!endAPp)
 
         case 1:            
             Console.WriteLine("View Records \n");
+            if (!IsHabits())
+            {
+                Console.WriteLine("No Records to show, Return to Main Menu to add some.");
+                break;
+            }
             DisplayRecords();
             break;
 
         case 2:
             Console.WriteLine("Insert Record");
-            Console.WriteLine("-------------");
+            Console.WriteLine("-------------");            
 
-            userHabit = HabitMenu();
+            if (!IsHabits())
+            {
+                break;
+                //Insert New Habit
+            }
+
+            try 
+            { 
+                userHabit = HabitMenu();
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                //User Has pressed 0 - Exit to Main Menu.
+                break;
+            }
 
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Green;
@@ -61,26 +84,64 @@ while (!endAPp)
 
         case 3:
             //TODO: Delete Record
-            Console.WriteLine("Delete Record");            
+            Console.WriteLine("Delete Record");
+            if (!IsHabits())
+            {
+                Console.WriteLine("No Records to show, Return to Main Menu to add some.");
+                break;
+            }
 
             Console.WriteLine("""
                 1 - Delete Habit & Records
                 2 - Delete Record
                 """);
             menuSelection = ValidateMenu();
-            
+            Console.Clear();
             switch (menuSelection)
             {
                 case 1:
-                    userHabit = HabitMenu();
+                    try
+                    {
+                        userHabit = HabitMenu();
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        //User Has pressed 0 - Exit to Main Menu.
+                        break;
+                    }
                     db.DeleteHabit(userHabit);
                     break;
 
                 case 2:
-                    //db.DeleteRecord(userHabit, userRecord);
+                    try
+                    {
+                        userHabit = HabitMenu();
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        //User Has pressed 0 - Exit to Main Menu.
+                        break;
+                    }
+                    Console.Clear();
+                    Console.WriteLine("Select Record to Delete");
+                    Console.WriteLine("-----------------------");
+                    var records = db.GetHabitRecords(userHabit);
+                    int i = 1;
+                    foreach (var record in records)
+                    {
+                        Console.WriteLine($"{i} - {record.Quantity} {userHabit.Unit} - {record.Date:ddd (dd/MM) HH:mm}");
+                        i++;
+                    }
+                    Console.WriteLine("0 - Exit to Main Menu");
+                    Console.Write("Select Option: ");
+                    var recordSelection = ValidateMenu();
+
+                    if (recordSelection == 0) break;
+
+                    var userRecord = records[recordSelection - 1];
+                    db.DeleteRecord(userHabit, userRecord);
                     break;
             }
-
             break;
         case 4:
             //TODO: Update Record
@@ -92,17 +153,27 @@ while (!endAPp)
     Console.Clear();
 }
 
+bool IsHabits() => db.GetHabits().Any();
+
+
 Habit HabitMenu()
 {
     var habits = db.GetHabits();
-    int i = 1;
+    int i = 1;    
     foreach (var habit in habits)
     {
-        Console.WriteLine($"{i} - {habit.HabitName}");
+
+      Console.WriteLine($"{i} - {habit.HabitName}");
         i++;
     }
-    Console.Write("\nSelect Habit: ");
+    Console.WriteLine("0 - Exit to Main Menu");
+    Console.Write("\nSelect Option: ");
     var menuSelection = ValidateMenu();
+
+    if (menuSelection == 0)
+    {
+        throw new ArgumentOutOfRangeException( "User Exited to Main Menu", nameof(menuSelection) );
+    }
 
     return habits[menuSelection - 1];
 }

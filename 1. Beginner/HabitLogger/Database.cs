@@ -53,13 +53,13 @@ internal class Database
     public List<Habit> GetHabits()
     {
         var habits = new List<Habit>();
-        string getHabits = "SELECT Name, Unit FROM Habits";
+        string getHabits = "SELECT id, Name, Unit FROM Habits";
         using var cmd = new SQLiteCommand(getHabits, DbConnection);
         using SQLiteDataReader rdr = cmd.ExecuteReader();
 
         while (rdr.Read())
         {
-            habits.Add(new Habit(rdr.GetString(0), rdr.GetString(1), new List<Entry>()));
+            habits.Add(new Habit(rdr.GetInt32(0), rdr.GetString(1), rdr.GetString(2), new List<Entry>()));
         }
         rdr.Close();
         cmd.Dispose();
@@ -69,13 +69,13 @@ internal class Database
 
     public List<Entry> GetHabitRecords(Habit habit)
     {
-        string getDetails = "SELECT Quantity, Datetime FROM " + habit.HabitName;
+        string getDetails = "SELECT id, Quantity, Datetime FROM " + habit.HabitName;
         using var cmd = new SQLiteCommand(getDetails, DbConnection);
         using SQLiteDataReader rdr = cmd.ExecuteReader();
         while (rdr.Read())
         {
-            DateTime.TryParse(rdr.GetString(1), out var date);
-            habit.Entries.Add(new Entry(rdr.GetInt32(0), date));
+            DateTime.TryParse(rdr.GetString(2), out var date);
+            habit.Entries.Add(new Entry(rdr.GetInt32(0), rdr.GetInt32(1), date));
         }
         rdr.Close();
         cmd.Dispose();
@@ -120,9 +120,10 @@ internal class Database
 
     public void DeleteRecord(Habit habit, Entry entry)
     {
-
+        using var cmd = new SQLiteCommand(DbConnection);
+        cmd.CommandText = $"DELETE FROM {habit.HabitName} Where id = '{entry.id}'";
     }
 
-    public record Habit (string HabitName, string Unit, List<Entry> Entries);
-    public record Entry(int Quantity, DateTime Date);
+    public record Habit (int id, string HabitName, string Unit, List<Entry> Entries);
+    public record Entry(int id, int Quantity, DateTime Date);
 }
