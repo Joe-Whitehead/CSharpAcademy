@@ -8,6 +8,7 @@ while (!endAPp)
 {    
     int menuSelection;
     int userQuantity;
+    bool exitToMenu = false;
     Habit userHabit;
 
     Console.WriteLine("""
@@ -56,15 +57,9 @@ while (!endAPp)
                 //Insert New Habit
             }
 
-            try 
-            { 
-                userHabit = HabitMenu();
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                //User Has pressed 0 - Exit to Main Menu.
+            exitToMenu = HabitMenu(out userHabit);
+            if (exitToMenu)
                 break;
-            }
 
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Green;
@@ -85,6 +80,7 @@ while (!endAPp)
         case 3:
             //TODO: Delete Record
             Console.WriteLine("Delete Record");
+            Console.WriteLine("-------------");
             if (!IsHabits())
             {
                 Console.WriteLine("No Records to show, Return to Main Menu to add some.");
@@ -100,28 +96,18 @@ while (!endAPp)
             switch (menuSelection)
             {
                 case 1:
-                    try
-                    {
-                        userHabit = HabitMenu();
-                    }
-                    catch (ArgumentOutOfRangeException)
-                    {
-                        //User Has pressed 0 - Exit to Main Menu.
+                    exitToMenu = HabitMenu(out userHabit);
+                    if (exitToMenu)
                         break;
-                    }
+
                     db.DeleteHabit(userHabit);
                     break;
 
                 case 2:
-                    try
-                    {
-                        userHabit = HabitMenu();
-                    }
-                    catch (ArgumentOutOfRangeException)
-                    {
-                        //User Has pressed 0 - Exit to Main Menu.
+                    exitToMenu = HabitMenu(out userHabit);
+                    if (exitToMenu)
                         break;
-                    }
+
                     Console.Clear();
                     Console.WriteLine("Select Record to Delete");
                     Console.WriteLine("-----------------------");
@@ -129,7 +115,7 @@ while (!endAPp)
                     int i = 1;
                     foreach (var record in records)
                     {
-                        Console.WriteLine($"{i} - {record.Quantity} {userHabit.Unit} - {record.Date:ddd (dd/MM) HH:mm}");
+                        Console.WriteLine($"{i}: {record.Quantity} {userHabit.Unit} - {record.Date:ddd (dd/MM) HH:mm}");
                         i++;
                     }
                     Console.WriteLine("0 - Exit to Main Menu");
@@ -143,9 +129,16 @@ while (!endAPp)
                     break;
             }
             break;
+
         case 4:
             //TODO: Update Record
             Console.WriteLine("Update Record");
+            Console.WriteLine("-------------");
+            if (!IsHabits())
+            {
+                Console.WriteLine("No Records to show, Return to Main Menu to add some.");
+                break;
+            }
             break;
     }
     Console.WriteLine("Press any key to continue");
@@ -156,7 +149,7 @@ while (!endAPp)
 bool IsHabits() => db.GetHabits().Any();
 
 
-Habit HabitMenu()
+bool HabitMenu(out Habit selectedHabit)
 {
     var habits = db.GetHabits();
     int i = 1;    
@@ -172,10 +165,12 @@ Habit HabitMenu()
 
     if (menuSelection == 0)
     {
-        throw new ArgumentOutOfRangeException( "User Exited to Main Menu", nameof(menuSelection) );
+        selectedHabit = new Habit(0, "", "", []);
+        return false;
     }
 
-    return habits[menuSelection - 1];
+    selectedHabit = habits[menuSelection - 1];
+    return true; 
 }
 
 void DisplayRecords()
