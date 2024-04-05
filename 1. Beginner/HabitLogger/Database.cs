@@ -8,13 +8,14 @@ internal class Database
     private readonly string _fileName = "Habit-Logger.db";
     private string _connectionString = "DataSource=Habit-Logger.db";
     public SQLiteConnection DbConnection = new SQLiteConnection();
+    private Random _rnd = new Random();
 
     public Database()
     {
         DbConnection = new SQLiteConnection(_connectionString);
         DbConnection.Open();
 
-        if(!File.Exists(_fileName) || new FileInfo(_fileName).Length == 0)
+        if(!File.Exists(_fileName) || new FileInfo(_fileName).Length == 0 || GetHabits().Count < 1)
             CreateTablesIfNotExist();
     }
 
@@ -27,7 +28,7 @@ internal class Database
         cmd.ExecuteNonQuery();
         cmd.CommandText = "CREATE TABLE Habits(id INTEGER PRIMARY KEY, Name TEXT, Unit TEXT)";
         cmd.ExecuteNonQuery();
-        cmd.CommandText = @"INSERT INTO Habits(Name, Unit) VALUES ('Water', 'Glasses'), ('Fruit', 'Portions')";
+        cmd.CommandText = @"INSERT INTO Habits(Name, Unit) VALUES ('Water', 'Glasses'), ('Fruit', 'Portions'), ('Running', 'Miles')";
         cmd.ExecuteNonQuery();
         Console.WriteLine("Habits Table Created");
 
@@ -36,8 +37,11 @@ internal class Database
         cmd.ExecuteNonQuery();
         cmd.CommandText = "CREATE TABLE Water(id INTEGER PRIMARY KEY, Quantity INTEGER, Datetime TEXT)";
         cmd.ExecuteNonQuery();
-        cmd.CommandText = $"INSERT INTO Water(Quantity, DateTime) VALUES(2,'{DateTime.UtcNow}'), (3, '{DateTime.UtcNow.AddDays(-4)}')";
-        cmd.ExecuteNonQuery();
+        for (int i = 0; i < 100; i++)
+        {
+            cmd.CommandText = $"INSERT INTO Water(Quantity, DateTime) VALUES({_rnd.Next(1,8)},'{DateTime.UtcNow.AddDays(-100 + i + _rnd.Next(1, 3))}')";
+            cmd.ExecuteNonQuery();
+        }        
         Console.WriteLine("Water Table Created");
 
         //Fruit Table
@@ -45,10 +49,25 @@ internal class Database
         cmd.ExecuteNonQuery();
         cmd.CommandText = "CREATE TABLE Fruit(id INTEGER PRIMARY KEY, Quantity INTEGER, Datetime TEXT)";
         cmd.ExecuteNonQuery();
-        cmd.CommandText = $"INSERT INTO Fruit(Quantity, DateTime) VALUES(1, '{DateTime.UtcNow}'), (2, '{DateTime.UtcNow.AddDays(-2)}')";        
-        cmd.ExecuteNonQuery();
-        cmd.Dispose();
+        for (int i = 0; i < 100; i++)
+        {
+            cmd.CommandText = $"INSERT INTO Fruit(Quantity, DateTime) VALUES({_rnd.Next(1, 10)},'{DateTime.UtcNow.AddDays(-100 + i + _rnd.Next(1, 3))}')";
+            cmd.ExecuteNonQuery();
+        }        
         Console.WriteLine("Fruit Table Created");
+
+        //Running Table
+        cmd.CommandText = "DROP TABLE IF EXISTS Running";
+        cmd.ExecuteNonQuery();
+        cmd.CommandText = "CREATE TABLE Running(id INTEGER PRIMARY KEY, Quantity INTEGER, Datetime TEXT)";
+        cmd.ExecuteNonQuery();
+        for (int i = 0; i < 100; i++)
+        {
+            cmd.CommandText = $"INSERT INTO Running(Quantity, DateTime) VALUES({_rnd.Next(3, 10)},'{DateTime.UtcNow.AddDays(-400 + i + _rnd.Next(1, 3))}')";
+            cmd.ExecuteNonQuery();
+        }
+        Console.WriteLine("Running Table Created");
+        cmd.Dispose();
     }
 
     public void AddNewHabit(string HabitName, string Unit)
@@ -118,7 +137,6 @@ internal class Database
         cmd.CommandText = $"INSERT INTO {habit.HabitName}(Quantity, Datetime) VALUES ({quantity}, '{DateTime.UtcNow}')";                      
         cmd.ExecuteNonQuery();
         cmd.Dispose();
-
     }
 
     public void Update(Habit habit, Entry record, int Quantity)
