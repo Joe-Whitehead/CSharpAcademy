@@ -1,4 +1,5 @@
-﻿ using System.Data.SQLite;
+﻿using System.Data.Common;
+using System.Data.SQLite;
 using static HabitLogger.Database;
 
 namespace HabitLogger;
@@ -35,7 +36,7 @@ internal class Database
         //Water Table
         cmd.CommandText = "DROP TABLE IF EXISTS Water";
         cmd.ExecuteNonQuery();
-        cmd.CommandText = "CREATE TABLE Water(id INTEGER PRIMARY KEY, Quantity INTEGER, Datetime TEXT)";
+        cmd.CommandText = "CREATE TABLE Water(id INTEGER PRIMARY KEY, Quantity INTEGER, Datetime DATE)";
         cmd.ExecuteNonQuery();
         for (int i = 0; i < 100; i++)
         {
@@ -47,7 +48,7 @@ internal class Database
         //Fruit Table
         cmd.CommandText = "DROP TABLE IF EXISTS Fruit";
         cmd.ExecuteNonQuery();
-        cmd.CommandText = "CREATE TABLE Fruit(id INTEGER PRIMARY KEY, Quantity INTEGER, Datetime TEXT)";
+        cmd.CommandText = "CREATE TABLE Fruit(id INTEGER PRIMARY KEY, Quantity INTEGER, Datetime DATE)";
         cmd.ExecuteNonQuery();
         for (int i = 0; i < 100; i++)
         {
@@ -59,7 +60,7 @@ internal class Database
         //Running Table
         cmd.CommandText = "DROP TABLE IF EXISTS Running";
         cmd.ExecuteNonQuery();
-        cmd.CommandText = "CREATE TABLE Running(id INTEGER PRIMARY KEY, Quantity INTEGER, Datetime TEXT)";
+        cmd.CommandText = "CREATE TABLE Running(id INTEGER PRIMARY KEY, Quantity INTEGER, Datetime DATE)";
         cmd.ExecuteNonQuery();
         for (int i = 0; i < 100; i++)
         {
@@ -77,7 +78,7 @@ internal class Database
         //Create table for habit
         cmd.CommandText = $"DROP TABLE IF EXISTS {HabitName}";
         cmd.ExecuteNonQuery();
-        cmd.CommandText = $"CREATE TABLE {HabitName}(id INTEGER PRIMARY KEY, Quantity INTEGER, Datetime TEXT)";
+        cmd.CommandText = $"CREATE TABLE {HabitName}(id INTEGER PRIMARY KEY, Quantity INTEGER, Datetime DATE)";
         cmd.ExecuteNonQuery();
 
         //Add Habit into habits table
@@ -131,6 +132,32 @@ internal class Database
         return habitTables;
     }
 
+    public Report GetReport(Habit habit, string TimeFrame)
+    {        
+        var allEntries = GetHabitRecords(habit);
+        DateTime reportTime = TimeFrame switch
+        {
+            "Yearly" => DateTime.UtcNow.AddYears(-1),
+            "Monthly" => DateTime.UtcNow.AddMonths(-1),
+            "Weekly" => DateTime.UtcNow.AddDays(-7),
+             _ => DateTime.UtcNow.AddDays(-1)
+        };
+        
+        int totalQuantity = 0;
+        int totalRecords = 0;
+        foreach (var entry in allEntries)
+        {
+            if (reportTime <= entry.Date)
+            {
+                totalQuantity += entry.Quantity;
+                totalRecords++;
+            }
+        }
+        
+
+        return new Report(totalQuantity, totalRecords);
+    }
+
     public void insert(Habit habit, int quantity)
     {
         using var cmd = new SQLiteCommand(DbConnection);
@@ -168,4 +195,5 @@ internal class Database
 
     public record Habit (int id, string HabitName, string Unit, List<Entry> Entries);
     public record Entry(int id, int Quantity, DateTime Date);
+    public record Report (int TotalQuantity, int TotalRecords);
 }

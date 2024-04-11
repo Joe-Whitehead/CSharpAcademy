@@ -25,6 +25,7 @@ while (!endAPp)
         3 - Delete Record
         4 - Update Record
         5 - Add New Habit
+        6 - Reports
         -------------
         """);
     if (!IsHabits())
@@ -199,6 +200,43 @@ while (!endAPp)
             string unit = ValidateInput();
 
             db.AddNewHabit(habitName, unit);
+            break;
+
+        case 6:
+            Console.WriteLine("Reporting");
+            Console.WriteLine("---------");
+            if (!IsHabits())
+            {
+                Console.WriteLine("No Habits to show, Return to Main Menu to add some.");
+                break;
+            }
+            validHabit = HabitMenu(out userHabit);
+            if (!validHabit)
+                break;
+            Console.Clear();
+            Console.WriteLine("""
+                1 - Yearly
+                2 - Monthly
+                3 - Weekly
+                """);
+            var timeFrame = ValidateMenu() switch
+            {
+                1 => "Yearly",
+                2 => "Monthly",
+                3 => "Weekly",
+                _ => "Weekly"
+            };
+
+            Console.Clear();
+            Report report = db.GetReport(userHabit, timeFrame);
+
+            Console.WriteLine($"""
+                {userHabit.HabitName} {timeFrame} Report
+                -----------------
+                Total {userHabit.Unit}: {report.TotalQuantity}
+                Total Entries: {report.TotalRecords}
+                """);
+
             break;
     }
     Console.WriteLine("Press any key to continue");
