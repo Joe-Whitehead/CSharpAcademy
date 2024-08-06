@@ -64,7 +64,7 @@ internal class Database
         cmd.ExecuteNonQuery();
         for (int i = 0; i < 100; i++)
         {
-            cmd.CommandText = $"INSERT INTO Running(Quantity, DateTime) VALUES({_rnd.Next(3, 10)},'{DateTime.UtcNow.AddDays(-400 + i + _rnd.Next(1, 3))}')";
+            cmd.CommandText = $"INSERT INTO Running(Quantity, DateTime) VALUES({_rnd.Next(3, 10)},'{DateTime.UtcNow.AddDays(-100 + i + _rnd.Next(1, 3))}')";
             cmd.ExecuteNonQuery();
         }
         Console.WriteLine("Running Table Created");
