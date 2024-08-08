@@ -1,5 +1,6 @@
 # Habit Logger
-Console based CRUD application to track time spent coding.
+Console based CRUD application to keep track of habits - such as: glasses of water in a day, miles ran, portions of fruit/veg consumed or anyhting else the user wishes to track.
+
 Developed using C# and SQLite.
 
 
