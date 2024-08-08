@@ -25,7 +25,7 @@ Developed using C# and SQLite.
 
 * A console based UI where users can navigate by key presses
  
- 	- ![MainMenu](https://imgur.com/ZNhVz29)
+ 	![MainMenu](https://i.imgur.com/ZNhVz29.png)
 
 * CRUD DB functions
 
@@ -34,11 +34,12 @@ Developed using C# and SQLite.
 
 * Reports fetch data from the Database in Weekly, Monthly and Yearly time intervals
 
-	- ![ReportingMenu](https://imgur.com/9R7qRs0)
-  - ![ReportingTime](https://imgur.com/7ide4LY)
-  - ![ReportResult](https://imgur.com/15XyBSE)
+![ReportingMenu](https://i.imgur.com/9R7qRs0.png)
+![ReportingTime](https://i.imgur.com/7ide4LY.png)
+![ReportResult](https://i.imgur.com/15XyBSE.png)
 
 * Reporting and other data output uses ConsoleTables library to output in a more pleasant way
 
-	- ![ViewRecordTable](https://imgur.com/FnzzcUX)
+	![ViewRecordTable](https://i.imgur.com/FnzzcUX.png)
+
 	- [GitHub for ConsoleTables Library](https://github.com/khalidabuhakmeh/ConsoleTables)
