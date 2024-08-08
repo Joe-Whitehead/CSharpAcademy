@@ -15,6 +15,9 @@ Developed using C# and SQLite.
 - [x] The application should only be terminated when the user inserts 0.
 - [x] You can only interact with the database using raw SQL. You can’t use mappers such as Entity Framework.
 - [x]  Your project needs to contain a Read Me file where you'll explain how your app works.
+- [x]  Let the users create their own habits to track. That will require that you let them choose the unit of measurement of each habit.
+- [x]  Seed Data into the database automatically when the database gets created for the first time, generating a few habits and inserting a hundred records with randomly generated values.
+- [x]  Create a report functionality where the users can view specific information
 
 # Features
 
