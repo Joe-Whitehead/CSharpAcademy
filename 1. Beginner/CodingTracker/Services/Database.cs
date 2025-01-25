@@ -8,8 +8,7 @@ namespace CodingTracker.Services;
 internal class Database
 {
     private static string DatabasePath { get; } = System.Configuration.ConfigurationManager.AppSettings.Get("DatabasePath") ?? "";
-    private static string ConnectionString { get; } = System.Configuration.ConfigurationManager.AppSettings.Get("ConnectionString") ?? "";
-   // public SQLiteConnection DbConnection = new SQLiteConnection(ConnectionString);
+    private static string ConnectionString { get; } = System.Configuration.ConfigurationManager.AppSettings.Get("ConnectionString") ?? "";   
 
     public Database()
     {
