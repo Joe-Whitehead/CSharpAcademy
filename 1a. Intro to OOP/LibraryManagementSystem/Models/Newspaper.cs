@@ -1,7 +1,6 @@
 ﻿using Spectre.Console;
-using LibraryManagementSystem.Models;
 
-namespace TCSA.OOP.LibraryManagementSystem.Models;
+namespace LibraryManagementSystem.Models;
 
 internal class Newspaper : LibraryItem
 {

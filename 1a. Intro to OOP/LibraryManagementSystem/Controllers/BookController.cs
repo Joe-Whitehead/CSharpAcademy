@@ -1,12 +1,12 @@
 ﻿using LibraryManagementSystem.Models;
 using Spectre.Console;
 
-namespace LibraryManagementSystem;
+namespace LibraryManagementSystem.Controllers;
 
-internal class BooksController
+internal class BookController : IBaseController
 {
 
-    internal void ViewBooks()
+    public void ViewItems()
     {
         Table table = new();
         table.Border(TableBorder.Rounded);
@@ -36,7 +36,7 @@ internal class BooksController
         Console.ReadKey();
     }
 
-    internal  void AddBook()
+    public void AddItem()
     {
         var title = AnsiConsole.Ask<string>("Enter the [green]title[/] of the book to add:");
         var author = AnsiConsole.Ask<string>("Enter the [green]author[/] of the book:");
@@ -59,7 +59,7 @@ internal class BooksController
         Console.ReadKey();
     }
 
-    internal void DeleteBook()
+    public void DeleteItem()
     {
         if (!MockDatabase.LibraryItems.OfType<Book>().Any())
         {
@@ -73,7 +73,7 @@ internal class BooksController
             .Title("Select a [red]book[/] to delete:")
             .UseConverter(b => $"{b.Name}")
             .AddChoices(MockDatabase.LibraryItems.OfType<Book>()));
-            
+
 
         if (MockDatabase.LibraryItems.Remove(bookToDelete))
         {
