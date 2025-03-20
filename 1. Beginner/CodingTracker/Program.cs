@@ -1,7 +1,8 @@
-﻿using CodingTracker;
-using CodingTracker.Services;
+﻿using CodingTracker.Model;
+using CodingTracker.Controller;
+using CodingTracker.View;
 
-Database db = new ();
-UserInput.Title();
+CodingSessionView view = new();
+view.Run();
 
 

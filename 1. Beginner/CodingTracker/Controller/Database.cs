@@ -1,0 +1,66 @@
+﻿using CodingTracker.Model;
+using Dapper;
+using System.Data.SQLite;
+
+namespace CodingTracker.Controller;
+
+internal class Database
+{
+    private readonly string _databasePath;
+    private readonly string _connectionString;
+    private readonly SQLiteConnection DbConnection;
+
+    public Database()
+    {
+        _databasePath = System.Configuration.ConfigurationManager.AppSettings.Get("DatabasePath") ?? "";
+        _connectionString = System.Configuration.ConfigurationManager.AppSettings.Get("ConnectionString") ?? "";          
+        DbConnection = new SQLiteConnection(_connectionString);
+        DbConnection.Open();
+
+        if (!File.Exists(_databasePath) || new FileInfo(_databasePath).Length == 0 || GetAll().Count < 1)
+            CreateIfNotExist();
+    }
+
+    public void CreateIfNotExist()
+    {
+        string createTable = @"
+            CREATE TABLE IF NOT EXISTS CodeSessions (
+                id INTEGER PRIMARY KEY,
+                StartDate TEXT,
+                EndDate TEXT,
+                Duration TEXT
+            );
+        ";
+        DbConnection.Execute(createTable);
+    }
+
+    public void Insert(CodingSessionModel session)
+    {
+        string sql = "INSERT INTO CodeSessions (StartDate, EndDate, Duration) VALUES (@StartDate, @EndDate, @Duration);";
+        DbConnection.Execute(sql, session);
+    }
+
+    public void Delete(CodingSessionModel session)
+    {
+        string sql = "DELETE FROM CodeSessions WHERE id = @id;";
+        DbConnection.Execute(sql, session);
+    }
+
+    public void Update(CodingSessionModel session)
+    {
+        string sql = "UPDATE CodeSessions SET StartDate = @StartDate, EndDate = @EndDate, Duration = @Duration WHERE id = @id;";
+        DbConnection.Execute(sql, session);
+    }
+
+    public List<CodingSessionModel> GetAll()
+    {
+        string sql = "SELECT * FROM CodeSessions;";
+        return DbConnection.Query<CodingSessionModel>(sql).ToList();
+    }
+
+    public List<CodingSessionModel> GetRange(DateTime start, DateTime end)
+    {
+        string sql = "SELECT * FROM CodeSessions WHERE StartDate >= @start AND EndDate <= @end;";
+        return DbConnection.Query<CodingSessionModel>(sql, new { start = start.ToString("yyyy-MM-dd"), end = end.ToString("yyyy-MM-dd") }).ToList();
+    }
+}

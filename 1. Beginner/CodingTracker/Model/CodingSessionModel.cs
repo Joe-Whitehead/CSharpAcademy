@@ -1,6 +1,6 @@
-﻿namespace CodingTracker.DataModel;
+﻿namespace CodingTracker.Model;
 
-internal class CodingSession(DateTime start, DateTime end)
+internal class CodingSessionModel(DateTime start, DateTime end)
 {
     public int SessionId { get; set; }
     public DateTime StartTime { get; } = start;
