@@ -4,12 +4,12 @@ namespace CodingTracker;
 
 internal class CodingSessionView
 {
-    public void Title()
+    public static void Title()
     {
         AnsiConsole.MarkupLine("[bold cyan][[Coding Tracker]][/]");
     }
 
-    public void PageTitle(string title)
+    public static void PageTitle(string title)
     {
         AnsiConsole.MarkupLine($"""
             [bold]{title}[/]
@@ -36,9 +36,12 @@ internal class CodingSessionView
                     {
                         try
                         {
-                            startDateTime = dateTimeValidator.GetValidatedDateTime("Enter start date (dd-MM-yyyy): ", "Enter start time (HH:mm): ");
-                            endDateTime = dateTimeValidator.GetValidatedDateTime("Enter end date (dd-MM-yyyy): ", "Enter end time (HH:mm): ");
-                            dateTimeValidator.ValidateDateTimeRange(startDateTime, endDateTime);
+                            startDateTime = GetValidatedDateTime("Enter start date (dd-MM-yyyy): ", "Enter start time (HH:mm): ", dateTimeValidator);
+                            endDateTime = GetValidatedDateTime("Enter end date (dd-MM-yyyy): ", "Enter end time (HH:mm): ", dateTimeValidator);
+                            if (!dateTimeValidator.ValidateDateTimeRange(startDateTime, endDateTime))
+                            {
+                                throw new ArgumentException("Invalid date range.");
+                            }
 
                             // Break out of the loop if inputs are valid
                             break;
@@ -103,6 +106,29 @@ internal class CodingSessionView
                 Console.Clear();
                 AnsiConsole.MarkupLine("[red]Invalid choice[/]");
         }
-    }  
+    }
+    private DateTime GetValidatedDateTime(string datePrompt, string timePrompt, Validation validator)
+    {
+        while (true)
+        {
+            Console.Write(datePrompt);
+            string date = Console.ReadLine()!;
+            if (!validator.ValidateDate(date))
+            {
+                AnsiConsole.MarkupLine("[red]Invalid date format. Please try again.[/]");
+                continue;
+            }
+
+            Console.Write(timePrompt);
+            string time = Console.ReadLine()!;
+            if (!validator.ValidateTime(time))
+            {
+                AnsiConsole.MarkupLine("[red]Invalid time format. Please try again.[/]");
+                continue;
+            }
+
+            return DateTime.ParseExact($"{date} {time}", "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
+        }
+    }
 }
 enum MenuOption{AddSession = 1, ViewAllSessions, ViewByRange, ViewById, UpdateSession, DeleteSession, Exit}
