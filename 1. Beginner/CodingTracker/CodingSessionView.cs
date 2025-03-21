@@ -1,6 +1,6 @@
 ﻿using Spectre.Console;
-using CodingTracker.Controller;
-namespace CodingTracker.View;
+using System.Globalization;
+namespace CodingTracker;
 
 internal class CodingSessionView
 {
@@ -9,16 +9,50 @@ internal class CodingSessionView
         AnsiConsole.MarkupLine("[bold cyan][[Coding Tracker]][/]");
     }
 
+    public void PageTitle(string title)
+    {
+        AnsiConsole.MarkupLine($"""
+            [bold]{title}[/]
+            ----------------
+            """);
+            
+    }
+
     public void Run()
     {
         Database db = new();
+        SessionController sessionController = new();
+        Validation dateTimeValidator = new();
+        Title();
         while (true)
         {                       
             MenuOption selectedOption = MainMenu();
             switch (selectedOption)
             {
                 case MenuOption.AddSession:
-                    AnsiConsole.MarkupLine("[bold]Add Session[/]");                    
+                    PageTitle("Add Session");
+                    DateTime startDateTime, endDateTime;
+                    while (true)
+                    {
+                        try
+                        {
+                            startDateTime = dateTimeValidator.GetValidatedDateTime("Enter start date (dd-MM-yyyy): ", "Enter start time (HH:mm): ");
+                            endDateTime = dateTimeValidator.GetValidatedDateTime("Enter end date (dd-MM-yyyy): ", "Enter end time (HH:mm): ");
+                            dateTimeValidator.ValidateDateTimeRange(startDateTime, endDateTime);
+
+                            // Break out of the loop if inputs are valid
+                            break;
+                        }
+                        catch (Exception e)
+                        {
+                            AnsiConsole.MarkupLine($"[red]{e.Message} Please re-enter the values.[/]");
+                        }
+                    }
+
+                    // Add the session after successful validation
+                    sessionController.AddSession(startDateTime, endDateTime);
+                    AnsiConsole.MarkupLine("[bold green]Session added successfully[/]");
+
                     break;
                 case MenuOption.ViewAllSessions:
                     AnsiConsole.MarkupLine("[bold]View All Sessions[/]");
@@ -69,6 +103,6 @@ internal class CodingSessionView
                 Console.Clear();
                 AnsiConsole.MarkupLine("[red]Invalid choice[/]");
         }
-    }
+    }  
 }
 enum MenuOption{AddSession = 1, ViewAllSessions, ViewByRange, ViewById, UpdateSession, DeleteSession, Exit}

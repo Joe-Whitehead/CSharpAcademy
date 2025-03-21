@@ -1,7 +1,6 @@
-﻿using CodingTracker.Model;
-using CodingTracker.Controller;
-using CodingTracker.View;
+﻿using CodingTracker;
 
+Console.Title = "Coding Tracker";
 CodingSessionView view = new();
 view.Run();
 

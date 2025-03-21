@@ -1,8 +1,7 @@
-﻿using CodingTracker.Model;
-using Dapper;
+﻿using Dapper;
 using System.Data.SQLite;
 
-namespace CodingTracker.Controller;
+namespace CodingTracker;
 
 internal class Database
 {
@@ -34,33 +33,33 @@ internal class Database
         DbConnection.Execute(createTable);
     }
 
-    public void Insert(CodingSessionModel session)
+    public void Insert(CodingSession session)
     {
-        string sql = "INSERT INTO CodeSessions (StartDate, EndDate, Duration) VALUES (@StartDate, @EndDate, @Duration);";
+        string sql = "INSERT INTO CodeSessions (StartDate, EndDate, Duration) VALUES (@Start, @End, @Duration);";
         DbConnection.Execute(sql, session);
     }
 
-    public void Delete(CodingSessionModel session)
+    public void Delete(CodingSession session)
     {
         string sql = "DELETE FROM CodeSessions WHERE id = @id;";
         DbConnection.Execute(sql, session);
     }
 
-    public void Update(CodingSessionModel session)
+    public void Update(CodingSession session)
     {
-        string sql = "UPDATE CodeSessions SET StartDate = @StartDate, EndDate = @EndDate, Duration = @Duration WHERE id = @id;";
+        string sql = "UPDATE CodeSessions SET StartDate = @Start, EndDate = @End, Duration = @Duration WHERE id = @id;";
         DbConnection.Execute(sql, session);
     }
 
-    public List<CodingSessionModel> GetAll()
+    public List<CodingSession> GetAll()
     {
         string sql = "SELECT * FROM CodeSessions;";
-        return DbConnection.Query<CodingSessionModel>(sql).ToList();
+        return DbConnection.Query<CodingSession>(sql).ToList();
     }
 
-    public List<CodingSessionModel> GetRange(DateTime start, DateTime end)
+    public List<CodingSession> GetRange(DateTime start, DateTime end)
     {
         string sql = "SELECT * FROM CodeSessions WHERE StartDate >= @start AND EndDate <= @end;";
-        return DbConnection.Query<CodingSessionModel>(sql, new { start = start.ToString("yyyy-MM-dd"), end = end.ToString("yyyy-MM-dd") }).ToList();
+        return DbConnection.Query<CodingSession>(sql, new { start = start.ToString("yyyy-MM-dd"), end = end.ToString("yyyy-MM-dd") }).ToList();
     }
 }
