@@ -20,7 +20,6 @@ internal class CodingSessionView
 
     public void Run()
     {
-        Database db = new();
         SessionController sessionController = new();
         Validation dateTimeValidator = new();
         Title();
@@ -42,7 +41,6 @@ internal class CodingSessionView
                             {
                                 throw new ArgumentException("Invalid date range.");
                             }
-
                             // Break out of the loop if inputs are valid
                             break;
                         }
@@ -58,7 +56,23 @@ internal class CodingSessionView
 
                     break;
                 case MenuOption.ViewAllSessions:
-                    AnsiConsole.MarkupLine("[bold]View All Sessions[/]");
+                    PageTitle("View All Sessions");
+                    List<CodingSession> sessions = sessionController.ViewAllSessions();
+                    if (sessions.Count == 0)
+                    {
+                        AnsiConsole.MarkupLine("[bold red]No sessions found[/]");
+                    }
+                    else
+                    {
+                        foreach (var session in sessions)
+                        {
+                            AnsiConsole.MarkupLine($"[bold]Session Id:[/] {session.SessionId}");
+                            AnsiConsole.MarkupLine($"[bold]Start Time:[/] {session.Start}");
+                            AnsiConsole.MarkupLine($"[bold]End Time:[/] {session.End}");
+                            AnsiConsole.MarkupLine($"[bold]Duration:[/] {session.Duration}");
+                            AnsiConsole.MarkupLine("");
+                        }
+                    }
                     break;
                 case MenuOption.ViewByRange:
                     AnsiConsole.MarkupLine("[bold]View By Range[/]");

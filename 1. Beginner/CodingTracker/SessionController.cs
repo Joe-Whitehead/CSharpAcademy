@@ -10,26 +10,10 @@ internal class SessionController
             return true;
     }
 
-    public void ViewAllSessions()
+    public List<CodingSession> ViewAllSessions()
     {
-        AnsiConsole.MarkupLine("[bold]View All Sessions[/]");
         Database db = new();
-        var sessions = db.GetAll();
-        if (sessions.Count == 0)
-        {
-            AnsiConsole.MarkupLine("[bold red]No sessions found[/]");
-        }
-        else
-        {
-            foreach (var session in sessions)
-            {
-                AnsiConsole.MarkupLine($"[bold]Session Id:[/] {session.SessionId}");
-                AnsiConsole.MarkupLine($"[bold]Start Time:[/] {session.Start}");
-                AnsiConsole.MarkupLine($"[bold]End Time:[/] {session.End}");
-                AnsiConsole.MarkupLine($"[bold]Duration:[/] {session.Duration}");
-                AnsiConsole.MarkupLine("");
-            }
-        }
+        return db.GetAll();
     }
    /* public void ViewByRange()
     {
