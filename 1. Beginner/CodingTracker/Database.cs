@@ -1,4 +1,6 @@
 ﻿using Dapper;
+using System.Data;
+using System.Data.Common;
 using System.Data.SQLite;
 
 namespace CodingTracker;
@@ -24,7 +26,7 @@ internal class Database
     {
         string createTable = @"
             CREATE TABLE IF NOT EXISTS CodeSessions (
-                id INTEGER PRIMARY KEY,
+                Id INTEGER PRIMARY KEY,
                 StartDate TEXT,
                 EndDate TEXT,
                 Duration TEXT
@@ -53,8 +55,11 @@ internal class Database
 
     public List<CodingSession> GetAll()
     {
-        string sql = "SELECT * FROM CodeSessions;";
-        return DbConnection.Query<CodingSession>(sql).ToList();
+        string sql = "SELECT Id as SessionId, StartDate as Start, EndDate as End, Duration FROM CodeSessions;";
+        var sessions = DbConnection.Query(sql, (int sessionId, DateTime start, DateTime end, TimeSpan duration) =>
+        new CodingSession(sessionId, start, end, duration)).ToList();
+         
+        return sessions;
     }
 
     public List<CodingSession> GetRange(DateTime start, DateTime end)
