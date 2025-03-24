@@ -67,9 +67,9 @@ internal class CodingSessionView
                         foreach (var session in sessions)
                         {
                             AnsiConsole.MarkupLine($"[bold]Session Id:[/] {session.SessionId}");
-                            AnsiConsole.MarkupLine($"[bold]Start Time:[/] {session.Start}");
-                            AnsiConsole.MarkupLine($"[bold]End Time:[/] {session.End}");
-                            AnsiConsole.MarkupLine($"[bold]Duration:[/] {session.Duration}");
+                            AnsiConsole.MarkupLine($"[bold]Start Time:[/] {session.Start:f}");
+                            AnsiConsole.MarkupLine($"[bold]End Time:[/] {session.End:f}");
+                            AnsiConsole.MarkupLine($"[bold]Duration:[/] {session.Duration:c}");
                             AnsiConsole.MarkupLine("");
                         }
                     }

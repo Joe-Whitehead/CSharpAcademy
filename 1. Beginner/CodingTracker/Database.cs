@@ -50,7 +50,7 @@ internal class Database
         DbConnection.Execute(sql, session);
     }
 
-        public List<CodingSession> GetAll()
+    public List<CodingSession> GetAll()
     {
         string sql = "SELECT Id as SessionId, StartDate as Start, EndDate as End FROM CodeSessions;";
         var sessions = DbConnection.Query<CodingSession>(sql).ToList();
