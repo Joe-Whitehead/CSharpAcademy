@@ -5,9 +5,12 @@ internal class SessionController
 {
     public bool AddSession(DateTime start, DateTime end)
     {
-            Database db = new();
-            db.Insert(new CodingSession(start, end));            
-            return true;
+        Database db = new();
+        var session = new CodingSession();
+        session.Start = start;
+        session.End = end;
+        db.Insert(session);            
+        return true;
     }
 
     public List<CodingSession> ViewAllSessions()

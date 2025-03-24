@@ -1,6 +1,4 @@
 ﻿using Dapper;
-using System.Data;
-using System.Data.Common;
 using System.Data.SQLite;
 
 namespace CodingTracker;
@@ -28,8 +26,7 @@ internal class Database
             CREATE TABLE IF NOT EXISTS CodeSessions (
                 Id INTEGER PRIMARY KEY,
                 StartDate TEXT,
-                EndDate TEXT,
-                Duration TEXT
+                EndDate TEXT
             );
         ";
         DbConnection.Execute(createTable);
@@ -37,7 +34,7 @@ internal class Database
 
     public void Insert(CodingSession session)
     {
-        string sql = "INSERT INTO CodeSessions (StartDate, EndDate, Duration) VALUES (@Start, @End, @Duration);";
+        string sql = "INSERT INTO CodeSessions (StartDate, EndDate) VALUES (@Start, @End);";
         DbConnection.Execute(sql, session);
     }
 
@@ -49,16 +46,21 @@ internal class Database
 
     public void Update(CodingSession session)
     {
-        string sql = "UPDATE CodeSessions SET StartDate = @Start, EndDate = @End, Duration = @Duration WHERE id = @id;";
+        string sql = "UPDATE CodeSessions SET StartDate = @Start, EndDate = @End WHERE id = @id;";
         DbConnection.Execute(sql, session);
     }
 
-    public List<CodingSession> GetAll()
+        public List<CodingSession> GetAll()
     {
-        string sql = "SELECT Id as SessionId, StartDate as Start, EndDate as End, Duration FROM CodeSessions;";
-        var sessions = DbConnection.Query(sql, (int sessionId, DateTime start, DateTime end, TimeSpan duration) =>
-        new CodingSession(sessionId, start, end, duration)).ToList();
-         
+        string sql = "SELECT Id as SessionId, StartDate as Start, EndDate as End FROM CodeSessions;";
+        var sessions = DbConnection.Query<CodingSession>(sql).ToList();
+
+        // Calculate Duration for each session
+        foreach (var session in sessions)
+        {
+            session.Duration = session.End - session.Start;
+        }
+
         return sessions;
     }
 
