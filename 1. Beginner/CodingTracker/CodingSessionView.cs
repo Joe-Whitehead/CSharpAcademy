@@ -24,19 +24,19 @@ internal class CodingSessionView
         Validation dateTimeValidator = new();
         Title();
         while (true)
-        {                       
+        {
+            DateTime startDateTime, endDateTime;
             MenuOption selectedOption = MainMenu();
             switch (selectedOption)
             {
                 case MenuOption.AddSession:
-                    PageTitle("Add Session");
-                    DateTime startDateTime, endDateTime;
+                    PageTitle("Add Session");                    
                     while (true)
                     {
                         try
                         {
-                            startDateTime = GetValidatedDateTime("Enter start date (dd-MM-yyyy): ", "Enter start time (HH:mm): ", dateTimeValidator);
-                            endDateTime = GetValidatedDateTime("Enter end date (dd-MM-yyyy): ", "Enter end time (HH:mm): ", dateTimeValidator);
+                            startDateTime = GetValidatedDateTime(dateTimeValidator, "Enter start date (dd-MM-yyyy): ", "Enter start time (HH:mm): ");
+                            endDateTime = GetValidatedDateTime(dateTimeValidator, "Enter end date (dd-MM-yyyy): ", "Enter end time (HH:mm): ");
                             if (!dateTimeValidator.ValidateDateTimeRange(startDateTime, endDateTime))
                             {
                                 throw new ArgumentException("Invalid date range.");
@@ -57,25 +57,48 @@ internal class CodingSessionView
                     break;
                 case MenuOption.ViewAllSessions:
                     PageTitle("View All Sessions");
-                    List<CodingSession> sessions = sessionController.ViewAllSessions();
-                    if (sessions.Count == 0)
+                    List<CodingSession> allSessions = sessionController.ViewAllSessions();
+                    if (allSessions.Count == 0)
                     {
                         AnsiConsole.MarkupLine("[bold red]No sessions found[/]");
                     }
                     else
                     {
-                        foreach (var session in sessions)
+                        foreach (var session in allSessions)
                         {
-                            AnsiConsole.MarkupLine($"[bold]Session Id:[/] {session.SessionId}");
+                            AnsiConsole.MarkupLine($"[bold]Session Id:[/] [cyan]{session.SessionId}[/]");
                             AnsiConsole.MarkupLine($"[bold]Start Time:[/] {session.Start:f}");
                             AnsiConsole.MarkupLine($"[bold]End Time:[/] {session.End:f}");
-                            AnsiConsole.MarkupLine($"[bold]Duration:[/] {session.Duration:c}");
+                            AnsiConsole.MarkupLine($"[bold]Duration:[/] [yellow]{session.Duration:hh\\:mm}[/]");
                             AnsiConsole.MarkupLine("");
                         }
                     }
                     break;
+
                 case MenuOption.ViewByRange:
                     AnsiConsole.MarkupLine("[bold]View By Range[/]");
+
+                    startDateTime = GetValidatedDateTime(dateTimeValidator, "Enter start date (dd-MM-yyyy): ");
+                    endDateTime = GetValidatedDateTime(dateTimeValidator, "Enter end date (dd-MM-yyyy): ");
+                    if (!dateTimeValidator.ValidateDateTimeRange(startDateTime, endDateTime))
+                    {
+                        Database db = new();
+                        List<CodingSession> sessionRange = sessionController.ViewByRange(startDateTime, endDateTime);
+                        if (sessionRange.Count == 0)
+                        {
+                            AnsiConsole.MarkupLine("[bold red]No sessions found[/]");
+                        }
+                        else
+                        {
+                            foreach (var session in sessionRange)
+                            {
+                                AnsiConsole.MarkupLine($"[bold]Session Id:[/] {session.SessionId}");
+                                AnsiConsole.MarkupLine($"[bold]Start Time:[/] {session.Start}");
+                                AnsiConsole.MarkupLine($"[bold]End Time:[/] {session.End}");
+                                AnsiConsole.MarkupLine($"[bold]Duration:[/] {session.Duration:hh\\:mm}");
+                            }
+                        }
+                    }
                     break;
                 case MenuOption.ViewById:
                     AnsiConsole.MarkupLine("[bold]View By Id[/]");
@@ -85,6 +108,13 @@ internal class CodingSessionView
                     break;
                 case MenuOption.DeleteSession:
                     AnsiConsole.MarkupLine("[bold]Delete Session[/]");
+                    break;
+                case MenuOption.InsertTestData:
+                    AnsiConsole.MarkupLine("[bold]Inserting test data[/]");
+                    if(sessionController.InsertTestData())
+                    {
+                        AnsiConsole.MarkupLine("[bold green]Test data inserted successfully[/]");
+                    }
                     break;
                 case MenuOption.Exit:
                     Environment.Exit(0);
@@ -106,7 +136,8 @@ internal class CodingSessionView
             [green]4[/] View By Id
             [green]5[/] Update Session
             [green]6[/] Delete Session
-            [red]7[/] Exit
+            [green]7[/] Insert Test Data
+            [red]8[/] Exit
             """);
 
        while (true)
@@ -121,7 +152,7 @@ internal class CodingSessionView
                 AnsiConsole.MarkupLine("[red]Invalid choice[/]");
         }
     }
-    private DateTime GetValidatedDateTime(string datePrompt, string timePrompt, Validation validator)
+    private DateTime GetValidatedDateTime(Validation validator, string datePrompt, string timePrompt = "00:00")
     {
         while (true)
         {
@@ -145,4 +176,4 @@ internal class CodingSessionView
         }
     }
 }
-enum MenuOption{AddSession = 1, ViewAllSessions, ViewByRange, ViewById, UpdateSession, DeleteSession, Exit}
+enum MenuOption{AddSession = 1, ViewAllSessions, ViewByRange, ViewById, UpdateSession, DeleteSession, InsertTestData, Exit}
