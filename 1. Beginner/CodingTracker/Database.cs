@@ -105,6 +105,17 @@ internal class Database
         return CalculateDuration(sessions);
     }
 
+    public CodingSession GetById(int id)
+    {
+        string sql = "SELECT Id as SessionId, StartDate as Start, EndDate as End FROM CodeSessions WHERE id = @id;";
+        var session = DbConnection.QuerySingleOrDefault<CodingSession>(sql, new { id });
+        if (session != null)
+        {
+            session.Duration = session.End - session.Start;
+        }
+        return session;
+    }
+
     private List<CodingSession> CalculateDuration(List<CodingSession> sessions)
     {
         foreach (var session in sessions)

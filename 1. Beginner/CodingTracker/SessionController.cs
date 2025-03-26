@@ -26,6 +26,11 @@ internal class SessionController
         
     }
 
+    public CodingSession ViewById(int id)
+    {
+        return db.GetById(id);
+    }
+
     public bool InsertTestData()
     {
         db.InsertTestData();

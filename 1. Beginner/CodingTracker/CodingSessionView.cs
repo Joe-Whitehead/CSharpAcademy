@@ -96,7 +96,9 @@ internal class CodingSessionView
                     }
                     break;
                 case MenuOption.ViewById:
-                    AnsiConsole.MarkupLine("[bold]View By Id[/]");
+                    PageTitle("View By Id");
+                    int id = AnsiConsole.Ask<int>("Enter the session id: ");
+                    DisplaySession(sessionController.ViewById(id));
 
                     break;
                 case MenuOption.UpdateSession:
@@ -121,17 +123,22 @@ internal class CodingSessionView
         }
     }
 
+    public void DisplaySession(CodingSession session)
+    {
+        AnsiConsole.MarkupLine($"[bold]Session Id:[/] [green]{session.SessionId}[/]");
+        AnsiConsole.MarkupLine($"[bold]Start Time:[/] {session.Start}");
+        AnsiConsole.MarkupLine($"[bold]End Time:[/] {session.End}");
+        AnsiConsole.MarkupLine($"[bold]Duration:[/] [cyan]{session.Duration:hh\\:mm}[/]");
+        AnsiConsole.MarkupLine("");
+        AnsiConsole.MarkupLine("----------------");
+        AnsiConsole.MarkupLine("");
+    }
+
     public void DisplaySession(List<CodingSession> sessions)
     {
         foreach (var session in sessions)
-        {            
-            AnsiConsole.MarkupLine($"[bold]Session Id:[/] [green]{session.SessionId}[/]");
-            AnsiConsole.MarkupLine($"[bold]Start Time:[/] {session.Start}");
-            AnsiConsole.MarkupLine($"[bold]End Time:[/] {session.End}");
-            AnsiConsole.MarkupLine($"[bold]Duration:[/] [cyan]{session.Duration:hh\\:mm}[/]");
-            AnsiConsole.MarkupLine("");
-            AnsiConsole.MarkupLine("----------------");
-            AnsiConsole.MarkupLine("");
+        {
+            DisplaySession(session);
         }
     }
 
