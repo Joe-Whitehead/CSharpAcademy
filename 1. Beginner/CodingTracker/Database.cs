@@ -38,7 +38,7 @@ internal class Database
         const int sessionCount = 30;
         const string sql = "INSERT INTO CodeSessions (StartDate, EndDate) VALUES (@Start, @End);";
 
-        DateTime currentStart = new DateTime(2024, 6, 1); // Initial start date
+        DateTime currentStart = new (2025, 2, 1); // Initial start date
         Random random = new();
 
         for (int i = 0; i < sessionCount; i++)
@@ -73,7 +73,6 @@ internal class Database
             }
         }
     }
-    
 
     private void DeleteAll()
     {
@@ -98,18 +97,11 @@ internal class Database
         string sql = "UPDATE CodeSessions SET StartDate = @Start, EndDate = @End WHERE id = @id;";
         DbConnection.Execute(sql, session);
     }
-
+     
     public List<CodingSession> GetAll()
     {
         string sql = "SELECT Id as SessionId, StartDate as Start, EndDate as End FROM CodeSessions;";
         var sessions = DbConnection.Query<CodingSession>(sql).ToList();
-        return CalculateDuration(sessions);
-    }
-
-    public List<CodingSession> GetRange(DateTime start, DateTime end)
-    {
-        string sql = "SELECT * FROM CodeSessions WHERE StartDate >= @start AND EndDate <= @end;";
-        var sessions = DbConnection.Query<CodingSession>(sql, new { start = start.ToString("yyyy-MM-dd"), end = end.ToString("yyyy-MM-dd") }).ToList();
         return CalculateDuration(sessions);
     }
 

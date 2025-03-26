@@ -3,9 +3,10 @@ namespace CodingTracker;
 
 internal class SessionController
 {
+    private Database db = new();
+
     public bool AddSession(DateTime start, DateTime end)
     {
-        Database db = new();
         var session = new CodingSession();
         session.Start = start;
         session.End = end;
@@ -15,19 +16,18 @@ internal class SessionController
 
     public List<CodingSession> ViewAllSessions()
     {
-        Database db = new();
         return db.GetAll();
     }
    
     public List<CodingSession> ViewByRange(DateTime StartDate, DateTime EndDate)
     {
-        Database db = new();
-        return new Database().GetRange(StartDate, EndDate);
+        List<CodingSession> sessions = db.GetAll();
+        return sessions.Where(s => s.Start >= StartDate && s.End <= EndDate).ToList();
+        
     }
 
     public bool InsertTestData()
     {
-        Database db = new();
         db.InsertTestData();
         return true;
     }

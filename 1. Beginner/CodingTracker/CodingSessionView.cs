@@ -64,44 +64,40 @@ internal class CodingSessionView
                     }
                     else
                     {
-                        foreach (var session in allSessions)
-                        {
-                            AnsiConsole.MarkupLine($"[bold]Session Id:[/] [cyan]{session.SessionId}[/]");
-                            AnsiConsole.MarkupLine($"[bold]Start Time:[/] {session.Start:f}");
-                            AnsiConsole.MarkupLine($"[bold]End Time:[/] {session.End:f}");
-                            AnsiConsole.MarkupLine($"[bold]Duration:[/] [yellow]{session.Duration:hh\\:mm}[/]");
-                            AnsiConsole.MarkupLine("");
-                        }
+                        DisplaySession(allSessions);
                     }
                     break;
 
                 case MenuOption.ViewByRange:
-                    AnsiConsole.MarkupLine("[bold]View By Range[/]");
-
-                    startDateTime = GetValidatedDateTime(dateTimeValidator, "Enter start date (dd-MM-yyyy): ");
-                    endDateTime = GetValidatedDateTime(dateTimeValidator, "Enter end date (dd-MM-yyyy): ");
-                    if (!dateTimeValidator.ValidateDateTimeRange(startDateTime, endDateTime))
+                    PageTitle("View By Range");
+                    bool isValidRange = false;
+                    do
                     {
-                        Database db = new();
-                        List<CodingSession> sessionRange = sessionController.ViewByRange(startDateTime, endDateTime);
-                        if (sessionRange.Count == 0)
+                        startDateTime = GetValidatedDateTime(dateTimeValidator, "Enter start date (dd-MM-yyyy): ");
+                        endDateTime = GetValidatedDateTime(dateTimeValidator, "Enter end date (dd-MM-yyyy): ");
+                        isValidRange = dateTimeValidator.ValidateDateTimeRange(startDateTime, endDateTime);
+
+                        if (!isValidRange)
                         {
-                            AnsiConsole.MarkupLine("[bold red]No sessions found[/]");
+                            AnsiConsole.MarkupLine("[bold red]Invalid date range. Please try again.[/]");
                         }
-                        else
-                        {
-                            foreach (var session in sessionRange)
-                            {
-                                AnsiConsole.MarkupLine($"[bold]Session Id:[/] {session.SessionId}");
-                                AnsiConsole.MarkupLine($"[bold]Start Time:[/] {session.Start}");
-                                AnsiConsole.MarkupLine($"[bold]End Time:[/] {session.End}");
-                                AnsiConsole.MarkupLine($"[bold]Duration:[/] {session.Duration:hh\\:mm}");
-                            }
-                        }
+                    } while (!isValidRange);
+
+                    List<CodingSession> sessionRange = sessionController.ViewByRange(startDateTime, endDateTime);
+                    if (sessionRange.Count == 0)
+                    {
+                        AnsiConsole.MarkupLine("[bold red]No sessions found[/]");
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        PageTitle("View By Range");
+                        DisplaySession(sessionRange);
                     }
                     break;
                 case MenuOption.ViewById:
                     AnsiConsole.MarkupLine("[bold]View By Id[/]");
+
                     break;
                 case MenuOption.UpdateSession:
                     AnsiConsole.MarkupLine("[bold]Update Session[/]");
@@ -122,6 +118,20 @@ internal class CodingSessionView
             }
             Console.ReadLine();
             Console.Clear();
+        }
+    }
+
+    public void DisplaySession(List<CodingSession> sessions)
+    {
+        foreach (var session in sessions)
+        {            
+            AnsiConsole.MarkupLine($"[bold]Session Id:[/] [green]{session.SessionId}[/]");
+            AnsiConsole.MarkupLine($"[bold]Start Time:[/] {session.Start}");
+            AnsiConsole.MarkupLine($"[bold]End Time:[/] {session.End}");
+            AnsiConsole.MarkupLine($"[bold]Duration:[/] [cyan]{session.Duration:hh\\:mm}[/]");
+            AnsiConsole.MarkupLine("");
+            AnsiConsole.MarkupLine("----------------");
+            AnsiConsole.MarkupLine("");
         }
     }
 
@@ -152,11 +162,11 @@ internal class CodingSessionView
                 AnsiConsole.MarkupLine("[red]Invalid choice[/]");
         }
     }
-    private DateTime GetValidatedDateTime(Validation validator, string datePrompt, string timePrompt = "00:00")
+    private DateTime GetValidatedDateTime(Validation validator, string datePrompt, string timePrompt = "Null")
     {
         while (true)
         {
-            Console.Write(datePrompt);
+            AnsiConsole.Markup(datePrompt);
             string date = Console.ReadLine()!;
             if (!validator.ValidateDate(date))
             {
@@ -164,7 +174,13 @@ internal class CodingSessionView
                 continue;
             }
 
-            Console.Write(timePrompt);
+            //If Time is not provided, return the date
+            if (timePrompt == "Null")
+            {
+                return DateTime.ParseExact(date, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+            }
+
+            AnsiConsole.Markup(timePrompt);
             string time = Console.ReadLine()!;
             if (!validator.ValidateTime(time))
             {
