@@ -32,49 +32,54 @@ internal class Database
         DbConnection.Execute(createTable);
     }
 
-    public void InsertTestData()
-    {   
-        string delete = "DROP TABLE CodeSessions;";
-        DbConnection.Execute(delete);
+    internal void InsertTestData()
+    {
+        DeleteAll();
+        const int sessionCount = 30;
+        const string sql = "INSERT INTO CodeSessions (StartDate, EndDate) VALUES (@Start, @End);";
 
-        CreateIfNotExist();
-        for (int i = 0; i < 30; i++)
+        DateTime currentStart = new DateTime(2024, 6, 1); // Initial start date
+        Random random = new();
+
+        for (int i = 0; i < sessionCount; i++)
         {
-            Dates dates = RandomDates();
-            string sql = $"INSERT INTO CodeSessions (StartDate, EndDate) VALUES (@Start, @End);";
-            DbConnection.Execute(sql,dates);
+            // Ensure the current start time is within the desired range (6 a.m. to midnight)
+            if (currentStart.Hour < 6)
+            {
+                currentStart = currentStart.Date.AddHours(6); // Adjust to 6 a.m.
+            }
+
+            // Generate random session duration (1 to 4 hours)
+            TimeSpan sessionDuration = TimeSpan.FromMinutes(random.Next(60, 240));
+            DateTime end = currentStart.Add(sessionDuration);
+
+            // Ensure the session ends before midnight
+            if (end.Hour >= 24)
+            {
+                end = currentStart.Date.AddDays(1).AddHours(0); // Clamp to midnight
+            }
+
+            // Execute SQL with an anonymous object
+            DbConnection.Execute(sql, new { Start = currentStart, End = end });
+
+            // Generate random gap before the next session (10 minutes to 2 hours)
+            TimeSpan randomGap = TimeSpan.FromMinutes(random.Next(10, 120));
+            currentStart = end.Add(randomGap);
+
+            // Skip to 6 a.m. the next day if the next start time is past midnight
+            if (currentStart.Hour < 6)
+            {
+                currentStart = currentStart.Date.AddDays(1).AddHours(6);
+            }
         }
     }
+    
 
-    private class Dates
+    private void DeleteAll()
     {
-        public DateTime Start { get; set; }
-        public DateTime End { get; set; }
+        string sql = "DELETE FROM CodeSessions;";
+        DbConnection.Execute(sql);
     }
-
-     private Dates RandomDates()
-    {
-        Random random = new Random();
-        DateTime rangeStart = new DateTime(2024, 6, 1); // Start of the range
-        DateTime rangeEnd = new DateTime(2025, 3, 31); // End of the range
-        TimeSpan range = rangeEnd - rangeStart;
-
-            // Generate random start time within the range
-            TimeSpan randomStartSpan = new TimeSpan((long)(random.NextDouble() * range.Ticks));
-            DateTime startTime = rangeStart + randomStartSpan;
-
-            // Generate random duration to calculate end time
-            TimeSpan duration = new TimeSpan(0, random.Next(1, 24 * 60), 0); // Random duration in minutes
-            DateTime endTime = startTime + duration;
-
-            // Ensure end time is within the range
-            if (endTime > rangeEnd)
-            {
-                endTime = rangeEnd; // Clamp to rangeEnd if it exceeds the limit                
-            }
-            return new Dates { Start = startTime, End = endTime };
-    }
-
 
     public void Insert(CodingSession session)
     {
