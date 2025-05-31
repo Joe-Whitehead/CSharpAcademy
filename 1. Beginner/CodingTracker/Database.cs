@@ -24,9 +24,9 @@ internal class Database
     {
         string createTable = @"
             CREATE TABLE IF NOT EXISTS CodeSessions (
-                Id INTEGER PRIMARY KEY,
-                StartDate TEXT,
-                EndDate TEXT
+                SessionId INTEGER PRIMARY KEY,
+                Start TEXT,
+                End TEXT
             );
         ";
         DbConnection.Execute(createTable);
@@ -36,7 +36,7 @@ internal class Database
     {
         DeleteAll();
         const int sessionCount = 30;
-        const string sql = "INSERT INTO CodeSessions (StartDate, EndDate) VALUES (@Start, @End);";
+        const string sql = "INSERT INTO CodeSessions (Start, End) VALUES (@Start, @End);";
 
         DateTime currentStart = new (2025, 2, 1); // Initial start date
         Random random = new();
@@ -82,32 +82,32 @@ internal class Database
 
     public void Insert(CodingSession session)
     {
-        string sql = "INSERT INTO CodeSessions (StartDate, EndDate) VALUES (@Start, @End);";
+        string sql = "INSERT INTO CodeSessions (Start, End) VALUES (@Start, @End);";
         DbConnection.Execute(sql, session);
     }
 
     public void Delete(CodingSession session)
     {
-        string sql = "DELETE FROM CodeSessions WHERE id = @id;";
+        string sql = "DELETE FROM CodeSessions WHERE SessionId = @id;";
         DbConnection.Execute(sql, session);
     }
 
     public void Update(CodingSession session)
     {
-        string sql = "UPDATE CodeSessions SET StartDate = @Start, EndDate = @End WHERE id = @id;";
+        string sql = "UPDATE CodeSessions SET Start = @Start, End = @End WHERE SessionId = @id;";
         DbConnection.Execute(sql, session);
     }
      
     public List<CodingSession> GetAll()
     {
-        string sql = "SELECT Id as SessionId, StartDate as Start, EndDate as End FROM CodeSessions;";
+        string sql = "SELECT * FROM CodeSessions;";
         var sessions = DbConnection.Query<CodingSession>(sql).ToList();
         return CalculateDuration(sessions);
     }
 
     public CodingSession GetById(int id)
     {
-        string sql = "SELECT Id as SessionId, StartDate as Start, EndDate as End FROM CodeSessions WHERE id = @id;";
+        string sql = "SELECT * FROM CodeSessions WHERE SessionId = @id;";
         var session = DbConnection.QuerySingleOrDefault<CodingSession>(sql, new { id });
         if (session != null)
         {

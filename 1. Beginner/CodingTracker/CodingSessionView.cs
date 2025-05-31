@@ -58,14 +58,7 @@ internal class CodingSessionView
                 case MenuOption.ViewAllSessions:
                     PageTitle("View All Sessions");
                     List<CodingSession> allSessions = sessionController.ViewAllSessions();
-                    if (allSessions.Count == 0)
-                    {
-                        AnsiConsole.MarkupLine("[bold red]No sessions found[/]");
-                    }
-                    else
-                    {
                         DisplaySession(allSessions);
-                    }
                     break;
 
                 case MenuOption.ViewByRange:
@@ -97,7 +90,7 @@ internal class CodingSessionView
                     break;
                 case MenuOption.ViewById:
                     PageTitle("View By Id");
-                    int id = AnsiConsole.Ask<int>("Enter the session id: ");
+                    int id = AnsiConsole.Ask<int>("Enter the session id: ");                   
                     DisplaySession(sessionController.ViewById(id));
 
                     break;
@@ -125,6 +118,11 @@ internal class CodingSessionView
 
     public void DisplaySession(CodingSession session)
     {
+        if (session == null)
+        {
+            AnsiConsole.MarkupLine("[bold red]Session not found[/]");
+            return;
+        }
         AnsiConsole.MarkupLine($"[bold]Session Id:[/] [green]{session.SessionId}[/]");
         AnsiConsole.MarkupLine($"[bold]Start Time:[/] {session.Start}");
         AnsiConsole.MarkupLine($"[bold]End Time:[/] {session.End}");
@@ -136,6 +134,12 @@ internal class CodingSessionView
 
     public void DisplaySession(List<CodingSession> sessions)
     {
+        if (sessions.Count == 0 || sessions == null)
+        {
+            AnsiConsole.MarkupLine("[bold red]No Sessions found[/]");
+            return;
+        }
+
         foreach (var session in sessions)
         {
             DisplaySession(session);

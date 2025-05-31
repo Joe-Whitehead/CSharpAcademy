@@ -3,7 +3,7 @@ namespace CodingTracker;
 
 internal class SessionController
 {
-    private Database db = new();
+    private readonly Database db = new();
 
     public bool AddSession(DateTime start, DateTime end)
     {
