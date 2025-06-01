@@ -59,9 +59,15 @@ internal class Database
                 end = currentStart.Date.AddDays(1).AddHours(0); // Clamp to midnight
             }
 
-            // Execute SQL with an anonymous object
-            DbConnection.Execute(sql, new { Start = currentStart, End = end });
-
+            try
+            {
+                // Execute SQL with an anonymous object
+                DbConnection.Execute(sql, new { Start = currentStart, End = end });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error inserting session {i + 1}: {ex.Message}");
+            }
             // Generate random gap before the next session (10 minutes to 2 hours)
             TimeSpan randomGap = TimeSpan.FromMinutes(random.Next(10, 120));
             currentStart = end.Add(randomGap);
