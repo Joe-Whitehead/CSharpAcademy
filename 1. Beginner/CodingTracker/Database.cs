@@ -104,16 +104,24 @@ internal class Database
         var sessions = DbConnection.Query<CodingSession>(sql).ToList();
         return CalculateDuration(sessions);
     }
+    public List<CodingSession> GetByRange(DateTime start, DateTime end)
+    {
+        string sql = "SELECT * FROM CodeSessions WHERE Start >= @start AND End <= @end;";
+        var sessions = DbConnection.Query<CodingSession>(sql, new { start, end }).ToList();
+        return CalculateDuration(sessions);
+    }
 
     public CodingSession GetById(int id)
     {
         string sql = "SELECT * FROM CodeSessions WHERE SessionId = @id;";
-        var session = DbConnection.QuerySingleOrDefault<CodingSession>(sql, new { id });
-        if (session != null)
-        {
-            session.Duration = session.End - session.Start;
-        }
+
+        var session = DbConnection.QuerySingleOrDefault<CodingSession>(sql, new { id }) ?? throw new Exception($"No session found with ID {id}");
+        
+        // Calculate duration for the session
+        session.Duration = session.End - session.Start;
+
         return session;
+                
     }
 
     private List<CodingSession> CalculateDuration(List<CodingSession> sessions)

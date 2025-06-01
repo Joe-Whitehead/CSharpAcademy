@@ -21,14 +21,21 @@ internal class SessionController
    
     public List<CodingSession> ViewByRange(DateTime StartDate, DateTime EndDate)
     {
-        List<CodingSession> sessions = db.GetAll();
-        return sessions.Where(s => s.Start >= StartDate && s.End <= EndDate).ToList();
-        
+        //return db.Where(s => s.Start >= StartDate && s.End <= EndDate).ToList();
+        return db.GetByRange(StartDate, EndDate);
     }
 
-    public CodingSession ViewById(int id)
+    public CodingSession? ViewById(int id)
     {
-        return db.GetById(id);
+        try
+        {
+            return db.GetById(id);
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[bold red]{ex.Message}[/]");   
+            return null;
+        }
     }
 
     public bool InsertTestData()

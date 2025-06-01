@@ -88,12 +88,17 @@ internal class CodingSessionView
                         DisplaySession(sessionRange);
                     }
                     break;
+
                 case MenuOption.ViewById:
                     PageTitle("View By Id");
-                    int id = AnsiConsole.Ask<int>("Enter the session id: ");                   
-                    DisplaySession(sessionController.ViewById(id));
+
+                    int id = AnsiConsole.Ask<int>("Enter the session id: ");
+                    CodingSession? sessionById = sessionController.ViewById(id);
+                    if (sessionById != null)
+                        DisplaySession(sessionById);
 
                     break;
+
                 case MenuOption.UpdateSession:
                     AnsiConsole.MarkupLine("[bold]Update Session[/]");
                     break;
@@ -118,11 +123,6 @@ internal class CodingSessionView
 
     public void DisplaySession(CodingSession session)
     {
-        if (session == null)
-        {
-            AnsiConsole.MarkupLine("[bold red]Session not found[/]");
-            return;
-        }
         AnsiConsole.MarkupLine($"[bold]Session Id:[/] [green]{session.SessionId}[/]");
         AnsiConsole.MarkupLine($"[bold]Start Time:[/] {session.Start}");
         AnsiConsole.MarkupLine($"[bold]End Time:[/] {session.End}");
