@@ -24,7 +24,7 @@ internal class CodingSessionView
         Validation dateTimeValidator = new();
         Title();
         while (true)
-        {
+        {            
             DateTime startDateTime, endDateTime;
             MenuOption selectedOption = MainMenu();
             switch (selectedOption)
@@ -55,6 +55,7 @@ internal class CodingSessionView
                     AnsiConsole.MarkupLine("[bold green]Session added successfully[/]");
 
                     break;
+
                 case MenuOption.ViewAllSessions:
                     PageTitle("View All Sessions");
                     List<CodingSession> allSessions = sessionController.ViewAllSessions();
@@ -83,8 +84,6 @@ internal class CodingSessionView
                     }
                     else
                     {
-                        Console.Clear();
-                        PageTitle("View By Range");
                         DisplaySession(sessionRange);
                     }
                     break;
@@ -116,8 +115,9 @@ internal class CodingSessionView
                     Environment.Exit(0);
                     return;
             }
+            AnsiConsole.MarkupLine("[bold]Press any key to continue...[/]");
             Console.ReadLine();
-            Console.Clear();
+            AnsiConsole.Clear();
         }
     }
 
@@ -133,7 +133,7 @@ internal class CodingSessionView
     }
 
     public void DisplaySession(List<CodingSession> sessions)
-    {
+    {        
         if (sessions.Count == 0 || sessions == null)
         {
             AnsiConsole.MarkupLine("[bold red]No Sessions found[/]");

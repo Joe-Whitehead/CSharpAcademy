@@ -38,6 +38,20 @@ internal class SessionController
         }
     }
 
+    public CodingSession? DeleteSession(int id)
+    {
+        var session = db.GetById(id);
+        if (session == null)
+        {
+            AnsiConsole.MarkupLine("[bold red]Session not found.[/]");
+            return null;
+        }
+        
+        db.Delete(session);
+        AnsiConsole.MarkupLine("[bold green]Session deleted successfully[/]");
+        return session;
+    }
+
     public bool InsertTestData()
     {
         db.InsertTestData();
