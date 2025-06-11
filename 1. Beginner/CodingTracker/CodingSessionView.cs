@@ -58,7 +58,7 @@ internal class CodingSessionView
 
                 case MenuOption.ViewAllSessions:
                     PageTitle("View All Sessions");
-                    List<CodingSession>? allSessions = sessionController.ViewAllSessions();
+                    List<CodingSession> allSessions = sessionController.ViewAllSessions();
                         DisplaySession(allSessions);
                     break;
 

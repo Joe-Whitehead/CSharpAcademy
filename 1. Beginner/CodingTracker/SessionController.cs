@@ -14,7 +14,7 @@ internal class SessionController
         return true;
     }
 
-    public List<CodingSession>? ViewAllSessions()
+    public List<CodingSession> ViewAllSessions()
     {
         try
         {
@@ -23,7 +23,7 @@ internal class SessionController
         catch (Exception ex)
         {
             AnsiConsole.MarkupLine($"[bold red]{ex.Message}[/]");
-            return null;
+            return new List<CodingSession>();
         }
     }
    
@@ -40,7 +40,7 @@ internal class SessionController
         }
     }
 
-    public CodingSession? ViewById(int id)
+    public CodingSession ViewById(int id)
     {
         try
         {
@@ -49,17 +49,17 @@ internal class SessionController
         catch (Exception ex)
         {
             AnsiConsole.MarkupLine($"[bold red]{ex.Message}[/]");   
-            return null;
+            return new CodingSession();
         }
     }
 
-    public CodingSession? DeleteSession(int id)
+    public CodingSession DeleteSession(int id)
     {
         var session = ViewById(id);
         if (session == null)
         {
             AnsiConsole.MarkupLine("[bold red]Session not found.[/]");
-            return null;
+            return new CodingSession();
         }
         
         db.Delete(session);
