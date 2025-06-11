@@ -14,15 +14,30 @@ internal class SessionController
         return true;
     }
 
-    public List<CodingSession> ViewAllSessions()
+    public List<CodingSession>? ViewAllSessions()
     {
-        return db.GetAll();
+        try
+        {
+            return db.GetAll();
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[bold red]{ex.Message}[/]");
+            return null;
+        }
     }
    
     public List<CodingSession> ViewByRange(DateTime StartDate, DateTime EndDate)
     {
-        //return db.Where(s => s.Start >= StartDate && s.End <= EndDate).ToList();
-        return db.GetByRange(StartDate, EndDate);
+        try
+        {
+            return db.GetByRange(StartDate, EndDate);
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[bold red]{ex.Message}[/]");
+            return new List<CodingSession>();
+        }
     }
 
     public CodingSession? ViewById(int id)
@@ -40,7 +55,7 @@ internal class SessionController
 
     public CodingSession? DeleteSession(int id)
     {
-        var session = db.GetById(id);
+        var session = ViewById(id);
         if (session == null)
         {
             AnsiConsole.MarkupLine("[bold red]Session not found.[/]");

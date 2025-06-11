@@ -108,12 +108,18 @@ internal class Database
     {
         string sql = "SELECT * FROM CodeSessions;";
         var sessions = DbConnection.Query<CodingSession>(sql).ToList();
+        if (sessions.Count == 0)
+            throw new Exception("No sessions found");
+
         return CalculateDuration(sessions);
     }
     public List<CodingSession> GetByRange(DateTime start, DateTime end)
     {
         string sql = "SELECT * FROM CodeSessions WHERE Start >= @start AND End <= @end;";
         var sessions = DbConnection.Query<CodingSession>(sql, new { start, end }).ToList();
+        if (sessions.Count == 0)
+            throw new Exception("No sessions found in the specified range");
+
         return CalculateDuration(sessions);
     }
 
