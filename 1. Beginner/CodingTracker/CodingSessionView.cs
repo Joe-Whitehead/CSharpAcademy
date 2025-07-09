@@ -94,7 +94,24 @@ internal class CodingSessionView
 
                 case MenuOption.UpdateSession:
                     AnsiConsole.MarkupLine("[bold]Update Session[/]");
+                    int updateId = AnsiConsole.Ask<int>("Enter the session id to update: ");
+
+                    startDateTime = GetValidatedDateTime(dateTimeValidator, "Enter start date (dd-MM-yyyy): ", "Enter start time (HH:mm): ");
+                    endDateTime = GetValidatedDateTime(dateTimeValidator, "Enter end date (dd-MM-yyyy): ", "Enter end time (HH:mm): ");
+                    if (!dateTimeValidator.ValidateDateTimeRange(startDateTime, endDateTime))
+                    {
+                        throw new ArgumentException("Invalid date range.");
+                    }
+
+                    bool updated = sessionController.UpdateSession(updateId, startDateTime, endDateTime);
+
+                    if (!updated)
+                    {
+                        AnsiConsole.MarkupLine("[bold red]Update failed.[/]");
+                    }
+
                     break;
+
                 case MenuOption.DeleteSession:
                     AnsiConsole.MarkupLine("[bold]Delete Session[/]");
                     break;

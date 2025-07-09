@@ -67,6 +67,24 @@ internal class SessionController
         return session;
     }
 
+    public bool UpdateSession(int id, DateTime newStart, DateTime newEnd)
+    {
+        var session = ViewById(id);
+        if (session == null)
+        {
+            AnsiConsole.MarkupLine("[bold red]Session not found.[/]");
+            return false;
+        }
+
+        session.Start = newStart;
+        session.End = newEnd;
+
+        db.Update(session);
+        AnsiConsole.MarkupLine("[bold green]Session updated successfully[/]");
+        return true;
+    }
+
+
     public bool InsertTestData()
     {
         db.InsertTestData();
